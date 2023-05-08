@@ -6,6 +6,8 @@
 #include "aspectratiowidget.h"
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QTextEdit>
+#include <QScrollArea>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -117,6 +119,7 @@ void MainWindow::on_notesButton_clicked(QVBoxLayout *mainLayout, QHBoxLayout *bu
 
     // Hide Hello message
     helloLabel->setVisible(false);
+
 }
 
 
