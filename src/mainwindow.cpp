@@ -40,25 +40,25 @@ MainWindow::MainWindow(QWidget *parent)
 
     // create the buttons
     QPushButton *homeButton = new QPushButton(mainWidget);
-    homeButton->setIcon(QIcon(":/imgs/logoHome.png"));
-    homeButton->setIconSize(QSize(64, 64));
-    homeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        homeButton->setIcon(QIcon(":/imgs/logoHome.png"));
+        homeButton->setIconSize(QSize(64, 64));
+        homeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QPushButton *goalsButton = new QPushButton(mainWidget);
-    goalsButton->setIcon(QIcon(":/imgs/logoGoals.png"));
-    goalsButton->setIconSize(QSize(64, 64));
-    goalsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        goalsButton->setIcon(QIcon(":/imgs/logoGoals.png"));
+        goalsButton->setIconSize(QSize(64, 64));
+        goalsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QPushButton *habitsButton = new QPushButton(mainWidget);
-    habitsButton->setIcon(QIcon(":/imgs/logoHabits.png"));
-    habitsButton->setIconSize(QSize(64, 64));
-    habitsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        habitsButton->setIcon(QIcon(":/imgs/logoHabits.png"));
+        habitsButton->setIconSize(QSize(64, 64));
+        habitsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QPushButton *inspirationButton = new QPushButton(mainWidget);
-    inspirationButton->setIcon(QIcon(":/imgs/logoInspiration.png"));
-    inspirationButton->setIconSize(QSize(64, 64));
-    inspirationButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        inspirationButton->setIcon(QIcon(":/imgs/logoInspiration.png"));
+        inspirationButton->setIconSize(QSize(64, 64));
+        inspirationButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QPushButton *notesButton = new QPushButton(mainWidget);
-    notesButton->setIcon(QIcon(":/imgs/logoNotes.png"));
-    notesButton->setIconSize(QSize(64, 64));
-    notesButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        notesButton->setIcon(QIcon(":/imgs/logoNotes.png"));
+        notesButton->setIconSize(QSize(64, 64));
+        notesButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
 
@@ -82,10 +82,10 @@ MainWindow::MainWindow(QWidget *parent)
     QString buttonStyle = "QPushButton {"
                           "border-radius: 32px;"
                           "border: 0px;"
-                          "background-color: #9D4EDD;"
+                          "background-color: #071426;"
                           "}"
                           "QPushButton:hover {"
-                          "background-color: #6C2DC7;"
+                          "background-color: #009ace;"
                           "}";
 
     homeButton->setStyleSheet(buttonStyle);
@@ -94,16 +94,32 @@ MainWindow::MainWindow(QWidget *parent)
     inspirationButton->setStyleSheet(buttonStyle);
     notesButton->setStyleSheet(buttonStyle);
 
+    connect(notesButton, &QPushButton::clicked, [=]() { on_notesButton_clicked(mainLayout, buttonLayout, mainWidget, helloLabel); });
 
     //add the layout to the grid layout
     gridLayout->addLayout(mainLayout, 0, 0, Qt::AlignTop | Qt::AlignHCenter);
 
-
     setCentralWidget(centralWidget);
 }
-
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+void MainWindow::on_notesButton_clicked(QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget,QLabel *helloLabel)
+{
+    //make it go bottom
+    mainLayout->removeItem(mainLayout->itemAt(0));
+    mainLayout->removeItem(mainLayout->itemAt(mainLayout->count() - 1));
+    mainLayout->addStretch();
+    mainLayout->addLayout(buttonLayout);
+    mainWidget->setLayout(mainLayout);
+
+    // Hide Hello message
+    helloLabel->setVisible(false);
+}
+
+
+
+
