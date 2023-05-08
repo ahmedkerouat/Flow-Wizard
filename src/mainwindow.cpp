@@ -114,7 +114,6 @@ void MainWindow::on_notesButton_clicked(QVBoxLayout *mainLayout, QHBoxLayout *bu
     mainLayout->removeItem(mainLayout->itemAt(mainLayout->count() - 1));
     mainLayout->addStretch();
     mainLayout->addLayout(buttonLayout);
-    mainWidget->setLayout(mainLayout);
 
     // Hide Hello message
     helloLabel->setVisible(false);
