@@ -96,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent)
     inspirationButton->setStyleSheet(buttonStyle);
     notesButton->setStyleSheet(buttonStyle);
 
-    connect(notesButton, &QPushButton::clicked, [=]() { on_notesButton_clicked(mainLayout, buttonLayout, mainWidget, helloLabel); });
+    connect(notesButton, &QPushButton::clicked, [=]() { on_notesButton_clicked(mainLayout, buttonLayout, mainWidget, helloLabel, gridLayout, aspectRatioWidget); });
 
     //add the layout to the grid layout
     gridLayout->addLayout(mainLayout, 0, 0, Qt::AlignTop | Qt::AlignHCenter);
@@ -109,18 +109,17 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_notesButton_clicked(QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget,QLabel *helloLabel)
+void MainWindow::on_notesButton_clicked(QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget, QLabel *helloLabel, QGridLayout *gridLayout, AspectRatioWidget *aspectRatioWidget)
 {
     //make it go bottom
     mainLayout->removeItem(mainLayout->itemAt(0));
-    mainLayout->removeItem(mainLayout->itemAt(mainLayout->count() - 1));
-    mainLayout->addStretch();
     mainLayout->addLayout(buttonLayout);
+    gridLayout->setAlignment(aspectRatioWidget, Qt::AlignBottom);
 
     // Hide Hello message
     helloLabel->setVisible(false);
-
 }
+
 
 
 
