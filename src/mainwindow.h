@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QPushButton>
 #include <aspectratiowidget.h>
 
 QT_BEGIN_NAMESPACE
@@ -19,7 +20,7 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_notesButton_clicked(QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget,QLabel *helloLabel,QGridLayout *gridLayout,AspectRatioWidget *aspectRatioWidget);
+    void on_notesButton_clicked(QPushButton *notesButton, QWidget *centralWidget, QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget,QLabel *helloLabel,QGridLayout *gridLayout,AspectRatioWidget *aspectRatioWidget);
 
 private:
     Ui::MainWindow *ui;

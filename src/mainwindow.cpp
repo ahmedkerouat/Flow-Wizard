@@ -96,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent)
     inspirationButton->setStyleSheet(buttonStyle);
     notesButton->setStyleSheet(buttonStyle);
 
-    connect(notesButton, &QPushButton::clicked, [=]() { on_notesButton_clicked(mainLayout, buttonLayout, mainWidget, helloLabel, gridLayout, aspectRatioWidget); });
+    connect(notesButton, &QPushButton::clicked, [=]() { on_notesButton_clicked(notesButton,centralWidget, mainLayout, buttonLayout, mainWidget, helloLabel, gridLayout, aspectRatioWidget); });
 
     //add the layout to the grid layout
     gridLayout->addLayout(mainLayout, 0, 0, Qt::AlignTop | Qt::AlignHCenter);
@@ -109,15 +109,28 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_notesButton_clicked(QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget, QLabel *helloLabel, QGridLayout *gridLayout, AspectRatioWidget *aspectRatioWidget)
+void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centralWidget,QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget, QLabel *helloLabel, QGridLayout *gridLayout, AspectRatioWidget *aspectRatioWidget)
 {
     //make it go bottom
     mainLayout->removeItem(mainLayout->itemAt(0));
     mainLayout->addLayout(buttonLayout);
     gridLayout->setAlignment(aspectRatioWidget, Qt::AlignBottom);
 
+    //notesWidget
+    QWidget *notesWidget = new QWidget(centralWidget);
+    notesWidget->setObjectName("notesWidget");
+    notesWidget->setStyleSheet("background-color: white");
+    AspectRatioWidget *notesAspectRatioWidget = new AspectRatioWidget(notesWidget, 5, 3, centralWidget);
+    gridLayout->addWidget(notesAspectRatioWidget, 1, 0, 5, 1);
+
     // Hide Hello message
     helloLabel->setVisible(false);
+
+    //prevent button to be pressed again
+    if (notesButton)
+    {
+        notesButton->setEnabled(false);
+    }
 }
 
 
