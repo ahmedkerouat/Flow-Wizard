@@ -119,9 +119,31 @@ void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centr
     //notesWidget
     QWidget *notesWidget = new QWidget(centralWidget);
     notesWidget->setObjectName("notesWidget");
-    notesWidget->setStyleSheet("background-color: white");
+    notesWidget->setStyleSheet("background-color: #2B2D42");
     AspectRatioWidget *notesAspectRatioWidget = new AspectRatioWidget(notesWidget, 5, 3, centralWidget);
     gridLayout->addWidget(notesAspectRatioWidget, 1, 0, 5, 1);
+
+    // Create a scroll area for the notes
+    QScrollArea *scrollArea = new QScrollArea(notesWidget);
+    scrollArea->setWidgetResizable(true);
+
+    // Create a text edit widget for the notepad
+    QTextEdit *notepad = new QTextEdit(scrollArea);
+    notepad->setObjectName("notepad");
+    notepad->setStyleSheet("background-color: #2B2D42; color: white;");
+
+    scrollArea->setWidget(notepad);
+
+    QVBoxLayout *notesLayout = new QVBoxLayout(notesWidget);
+    notesLayout->addWidget(scrollArea);
+    scrollArea->setWidget(notepad);
+
+    // vertical scrolling only
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    // Set the layout for the notes widget
+    notesWidget->setLayout(notesLayout);
 
     // Hide Hello message
     helloLabel->setVisible(false);
