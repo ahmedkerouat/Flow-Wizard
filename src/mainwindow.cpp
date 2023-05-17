@@ -8,6 +8,9 @@
 #include <QVBoxLayout>
 #include <QTextEdit>
 #include <QScrollArea>
+#include <QFileDialog>
+#include <QFile>
+#include <QInputDialog>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -151,8 +154,25 @@ void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centr
     QPushButton *saveButton = new QPushButton("Save");
     connect(saveButton, &QPushButton::clicked, [notepad]() {
         QString text = notepad->toPlainText();
-        // Implement save logic here to save the text
+
+        QString fileName = QInputDialog::getText(notepad, "Save File", "Enter file name:");
+
+        QString defaultFolder = QDir::currentPath();
+
+        QString folderPath = defaultFolder + QDir::separator() + "savedFiles";
+        QDir().mkpath(folderPath);
+
+        QString filePath = folderPath + QDir::separator() + fileName + ".txt";
+
+        QFile file(filePath);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QTextStream stream(&file);
+            stream << text;
+            file.close();
+        }
     });
+
 
     QPushButton *newButton = new QPushButton("New");
     connect(newButton, &QPushButton::clicked, [notepad]() {
