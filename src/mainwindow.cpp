@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
     gridLayout->setSpacing(0);
     gridLayout->setContentsMargins(0, 0, 0, 0);
 
+
+
     //main widget added to central widget using AspectRatioWidget
     QWidget *mainWidget = new QWidget(centralWidget);
     mainWidget->setObjectName("mainWidget");
@@ -109,46 +111,79 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centralWidget,QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget, QLabel *helloLabel, QGridLayout *gridLayout, AspectRatioWidget *aspectRatioWidget)
+void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centralWidget, QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget, QLabel *helloLabel, QGridLayout *gridLayout, AspectRatioWidget *aspectRatioWidget)
 {
-    //make it go bottom
+    // Move mainWidget
     mainLayout->removeItem(mainLayout->itemAt(0));
     mainLayout->addLayout(buttonLayout);
     gridLayout->setAlignment(aspectRatioWidget, Qt::AlignBottom);
 
-    //notesWidget
     QWidget *notesWidget = new QWidget(centralWidget);
     notesWidget->setObjectName("notesWidget");
-    notesWidget->setStyleSheet("background-color: #2B2D42");
+    notesWidget->setStyleSheet("background-color: #071426");
     AspectRatioWidget *notesAspectRatioWidget = new AspectRatioWidget(notesWidget, 5, 3, centralWidget);
     gridLayout->addWidget(notesAspectRatioWidget, 1, 0, 5, 1);
 
-    // Create a scroll area for the notes
+    //scroll area for the notes
     QScrollArea *scrollArea = new QScrollArea(notesWidget);
     scrollArea->setWidgetResizable(true);
 
-    // Create a text edit widget for the notepad
+    //  text edit widget for the notepad
     QTextEdit *notepad = new QTextEdit(scrollArea);
     notepad->setObjectName("notepad");
     notepad->setStyleSheet("background-color: #2B2D42; color: white;");
 
     scrollArea->setWidget(notepad);
 
-    QVBoxLayout *notesLayout = new QVBoxLayout(notesWidget);
-    notesLayout->addWidget(scrollArea);
-    scrollArea->setWidget(notepad);
+    QString button3Style = "QPushButton {"
+                           "background-color: #009ace;"
+                           "color: white;"
+                           "border: none;"
+                           "padding: 8px 16px;"
+                           "border-radius: 4px;"
+                           "}"
+                           "QPushButton:hover {"
+                           "background-color: #1C82E7;"
+                           "}"
+                           "QPushButton:pressed {"
+                           "background-color: #1669C6;"
+                           "}";
+    QPushButton *saveButton = new QPushButton("Save");
+    connect(saveButton, &QPushButton::clicked, [notepad]() {
+        QString text = notepad->toPlainText();
+        // Implement save logic here to save the text
+    });
 
-    // vertical scrolling only
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    QPushButton *newButton = new QPushButton("New");
+    connect(newButton, &QPushButton::clicked, [notepad]() {
+        notepad->clear();
+    });
 
-    // Set the layout for the notes widget
-    notesWidget->setLayout(notesLayout);
+    QPushButton *loadButton = new QPushButton("Load");
+    connect(loadButton, &QPushButton::clicked, [notepad]() {
+        // Implement load logic here to load the selected notes
+    });
+
+    loadButton->setStyleSheet(button3Style);
+    saveButton->setStyleSheet(button3Style);
+    newButton->setStyleSheet(button3Style);
+
+    QHBoxLayout *button3Layout = new QHBoxLayout();
+    button3Layout->addWidget(saveButton);
+    button3Layout->addWidget(newButton);
+    button3Layout->addWidget(loadButton);
+
+    // Main layout for the notes widget
+    QVBoxLayout *mainNotesLayout = new QVBoxLayout(notesWidget);
+    mainNotesLayout->addLayout(button3Layout);
+    mainNotesLayout->addWidget(scrollArea);
+
+    notesWidget->setLayout(mainNotesLayout);
 
     // Hide Hello message
     helloLabel->setVisible(false);
 
-    //prevent button to be pressed again
+    // Prevent button from being pressed again
     if (notesButton)
     {
         notesButton->setEnabled(false);
