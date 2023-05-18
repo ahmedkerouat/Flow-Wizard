@@ -164,15 +164,24 @@ void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centr
 
         QString filePath = folderPath + QDir::separator() + fileName + ".txt";
 
+        // Check if the file already exists
+        if (QFile::exists(filePath)) {
+            int fileCount = 1;
+            QString baseFileName = fileName;
+            while (QFile::exists(filePath)) {
+                fileName = baseFileName + "_" + QString::number(fileCount);
+                filePath = folderPath + QDir::separator() + fileName + ".txt";
+                fileCount++;
+            }
+        }
+
         QFile file(filePath);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-        {
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream stream(&file);
             stream << text;
             file.close();
         }
     });
-
 
     QPushButton *newButton = new QPushButton("New");
     connect(newButton, &QPushButton::clicked, [notepad]() {
@@ -181,7 +190,19 @@ void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centr
 
     QPushButton *loadButton = new QPushButton("Load");
     connect(loadButton, &QPushButton::clicked, [notepad]() {
-        // Implement load logic here to load the selected notes
+            QString defaultFolder = QDir::currentPath();
+            QString folderPath = defaultFolder + QDir::separator() + "savedFiles";
+            QString filePath = QFileDialog::getOpenFileName(notepad, "Load File", folderPath);
+
+            QFile file(filePath);
+            if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+            {
+                QTextStream stream(&file);
+                QString loadedText = stream.readAll();
+                file.close();
+
+                notepad->setPlainText(loadedText);
+            }
     });
 
     loadButton->setStyleSheet(button3Style);
