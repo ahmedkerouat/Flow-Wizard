@@ -102,6 +102,8 @@ MainWindow::MainWindow(QWidget *parent)
     notesButton->setStyleSheet(buttonStyle);
 
     connect(notesButton, &QPushButton::clicked, [=]() { on_notesButton_clicked(notesButton,centralWidget, mainLayout, buttonLayout, mainWidget, helloLabel, gridLayout, aspectRatioWidget); });
+    connect(homeButton, &QPushButton::clicked, [=]() { resetWindow(notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget); });
+
 
     //add the layout to the grid layout
     gridLayout->addLayout(mainLayout, 0, 0, Qt::AlignTop | Qt::AlignHCenter);
@@ -114,12 +116,27 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::resetWindow(QPushButton *notesButton, QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QLabel *helloLabel, QGridLayout *gridLayout, AspectRatioWidget *aspectRatioWidget)
+{
+    if (centralWidget()->findChild<QWidget*>("notesWidget")) {
+        QWidget *notesWidget = centralWidget()->findChild<QWidget*>("notesWidget");
+        QWidget *mainWidget = centralWidget()->findChild<QWidget*>("mainWidget");
+        gridLayout->removeWidget(notesWidget);
+        delete notesWidget;
+
+        mainLayout->addWidget(mainWidget); // Add mainWidget back to the mainLayout
+
+        helloLabel->setVisible(true);
+        if (notesButton) {
+            notesButton->setEnabled(true);
+        }
+    }
+}
+
 void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centralWidget, QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget, QLabel *helloLabel, QGridLayout *gridLayout, AspectRatioWidget *aspectRatioWidget)
 {
     // Move mainWidget
-    mainLayout->removeItem(mainLayout->itemAt(0));
-    mainLayout->addLayout(buttonLayout);
-    gridLayout->setAlignment(aspectRatioWidget, Qt::AlignBottom);
+    mainLayout->removeWidget(aspectRatioWidget);
 
     QWidget *notesWidget = new QWidget(centralWidget);
     notesWidget->setObjectName("notesWidget");
@@ -230,8 +247,3 @@ void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centr
         notesButton->setEnabled(false);
     }
 }
-
-
-
-
-
