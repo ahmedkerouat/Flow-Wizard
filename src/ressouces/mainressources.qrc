@@ -6,5 +6,6 @@
         <file>imgs/logoHome.png</file>
         <file>imgs/logoInspiration.png</file>
         <file>imgs/logoNotes.png</file>
+        <file>motivation/mfile.txt</file>
     </qresource>
 </RCC>
