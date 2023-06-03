@@ -173,6 +173,7 @@ void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centr
                            "QPushButton:pressed {"
                            "background-color: #1669C6;"
                            "}";
+    // save button
     QPushButton *saveButton = new QPushButton("Save");
     connect(saveButton, &QPushButton::clicked, [notepad]() {
         QString text = notepad->toPlainText();
@@ -181,10 +182,26 @@ void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centr
 
         // If the file path is not set, prompt for a file name
         if (filePath.isEmpty()) {
-            filePath = QFileDialog::getSaveFileName(notepad, "Save File", "", "Text Files (*.txt)");
+            bool gotOk = false;
+            QString fileName = QInputDialog::getText(notepad, "Save File", "Enter file name:", QLineEdit::Normal, "", &gotOk);
+            if (gotOk) {
+                QString defaultFolder = QDir::currentPath();
+                QString folderPath = defaultFolder + QDir::separator() + "savedFiles";
+                QDir().mkpath(folderPath);
 
-            if (filePath.isEmpty()) {
-                return;  // User cancelled the save operation
+                filePath = folderPath + QDir::separator() + fileName + ".txt";
+
+                // Check if the file already exists
+                if (QFile::exists(filePath)) {
+                    int fileCount = 1;
+                    QString baseFileName = fileName;
+                    while (QFile::exists(filePath)) {
+                        fileName = baseFileName + "_" + QString::number(fileCount);
+                        filePath = folderPath + QDir::separator() + fileName + ".txt";
+                        fileCount++;
+                    }
+                }
+                gotOk = false;
             }
         }
 
@@ -198,6 +215,7 @@ void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centr
             notepad->setProperty("filePath", filePath);
         }
     });
+
 
     QPushButton *newButton = new QPushButton("New");
     connect(newButton, &QPushButton::clicked, [notepad]() {
