@@ -29,12 +29,10 @@ MainWindow::MainWindow(QWidget *parent)
     gridLayout->setSpacing(0);
     gridLayout->setContentsMargins(0, 0, 0, 0);
 
-
-
     //main widget added to central widget using AspectRatioWidget
     QWidget *mainWidget = new QWidget(centralWidget);
     mainWidget->setObjectName("mainWidget");
-    mainWidget->setStyleSheet("background-color: #2B2D42");
+    mainWidget->setStyleSheet("background-color:  #071426");
     AspectRatioWidget *aspectRatioWidget = new AspectRatioWidget(mainWidget, 4, 3, centralWidget);
     gridLayout->addWidget(aspectRatioWidget, 0, 0, 1, 1);
 
@@ -42,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     QLabel *helloLabel = new QLabel(mainWidget);
     helloLabel->setText("Hello, User.");
     helloLabel->setAlignment(Qt::AlignHCenter);
-    helloLabel->setStyleSheet("font-size: 22px; color: white;");
+    helloLabel->setStyleSheet("font-size: 44px; color: white;");
     gridLayout->addWidget(helloLabel, 0, 0, Qt::AlignTop | Qt::AlignHCenter);
 
     // create the buttons
@@ -109,6 +107,11 @@ MainWindow::MainWindow(QWidget *parent)
     gridLayout->addLayout(mainLayout, 0, 0, Qt::AlignTop | Qt::AlignHCenter);
 
     setCentralWidget(centralWidget);
+    mainLayout->removeItem(mainLayout->itemAt(0));
+    if (homeButton)
+            {
+                homeButton->setEnabled(false);
+            }
 }
 
 MainWindow::~MainWindow()
@@ -116,20 +119,22 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::resetWindow(QPushButton *notesButton, QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QLabel *helloLabel, QGridLayout *gridLayout, AspectRatioWidget *aspectRatioWidget)
+void MainWindow::resetWindow(QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget)
 {
-    if (centralWidget()->findChild<QWidget*>("notesWidget")) {
-        QWidget *notesWidget = centralWidget()->findChild<QWidget*>("notesWidget");
-        QWidget *mainWidget = centralWidget()->findChild<QWidget*>("mainWidget");
+    if (centralWidget()->findChild<QWidget*>("notesWidget"))
+    {
+        QWidget* notesWidget = centralWidget()->findChild<QWidget*>("notesWidget");
+        QWidget* mainWidget = centralWidget()->findChild<QWidget*>("mainWidget");
         gridLayout->removeWidget(notesWidget);
         delete notesWidget;
 
         mainLayout->addWidget(mainWidget); // Add mainWidget back to the mainLayout
 
-        helloLabel->setVisible(true);
-        if (notesButton) {
+        if (notesButton)
+        {
             notesButton->setEnabled(true);
         }
+
     }
 }
 
@@ -141,14 +146,14 @@ void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centr
     QWidget *notesWidget = new QWidget(centralWidget);
     notesWidget->setObjectName("notesWidget");
     notesWidget->setStyleSheet("background-color: #071426");
-    AspectRatioWidget *notesAspectRatioWidget = new AspectRatioWidget(notesWidget, 5, 3, centralWidget);
+    AspectRatioWidget *notesAspectRatioWidget = new AspectRatioWidget(notesWidget, 4, 4, centralWidget);
     gridLayout->addWidget(notesAspectRatioWidget, 1, 0, 5, 1);
 
     //scroll area for the notes
     QScrollArea *scrollArea = new QScrollArea(notesWidget);
     scrollArea->setWidgetResizable(true);
 
-    //  text edit widget for the notepad
+    // text edit widget for the notepad
     QTextEdit *notepad = new QTextEdit(scrollArea);
     notepad->setObjectName("notepad");
     notepad->setStyleSheet("background-color: #2B2D42; color: white;");
@@ -172,54 +177,48 @@ void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centr
     connect(saveButton, &QPushButton::clicked, [notepad]() {
         QString text = notepad->toPlainText();
 
-        QString fileName = QInputDialog::getText(notepad, "Save File", "Enter file name:");
+        QString filePath = notepad->property("filePath").toString();
 
-        QString defaultFolder = QDir::currentPath();
+        // If the file path is not set, prompt for a file name
+        if (filePath.isEmpty()) {
+            filePath = QFileDialog::getSaveFileName(notepad, "Save File", "", "Text Files (*.txt)");
 
-        QString folderPath = defaultFolder + QDir::separator() + "savedFiles";
-        QDir().mkpath(folderPath);
-
-        QString filePath = folderPath + QDir::separator() + fileName + ".txt";
-
-        // Check if the file already exists
-        if (QFile::exists(filePath)) {
-            int fileCount = 1;
-            QString baseFileName = fileName;
-            while (QFile::exists(filePath)) {
-                fileName = baseFileName + "_" + QString::number(fileCount);
-                filePath = folderPath + QDir::separator() + fileName + ".txt";
-                fileCount++;
+            if (filePath.isEmpty()) {
+                return;  // User cancelled the save operation
             }
         }
 
+        // Save the file
         QFile file(filePath);
         if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream stream(&file);
             stream << text;
             file.close();
+
+            notepad->setProperty("filePath", filePath);
         }
     });
 
     QPushButton *newButton = new QPushButton("New");
     connect(newButton, &QPushButton::clicked, [notepad]() {
         notepad->clear();
+        notepad->setProperty("filePath", "");  // Reset the file path
     });
 
     QPushButton *loadButton = new QPushButton("Load");
     connect(loadButton, &QPushButton::clicked, [notepad]() {
-            QString defaultFolder = QDir::currentPath();
-            QString folderPath = defaultFolder + QDir::separator() + "savedFiles";
-            QString filePath = QFileDialog::getOpenFileName(notepad, "Load File", folderPath);
+        QString defaultFolder = QDir::currentPath();
+        QString folderPath = defaultFolder + QDir::separator() + "savedFiles";
+        QString filePath = QFileDialog::getOpenFileName(notepad, "Load File", folderPath);
+        QFile file(filePath);
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream stream(&file);
+            QString loadedText = stream.readAll();
+            file.close();
 
-            QFile file(filePath);
-            if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-            {
-                QTextStream stream(&file);
-                QString loadedText = stream.readAll();
-                file.close();
-
-                notepad->setPlainText(loadedText);
-            }
+            notepad->setPlainText(loadedText);
+            notepad->setProperty("filePath", filePath);  // Set the file path
+        }
     });
 
     loadButton->setStyleSheet(button3Style);
@@ -240,10 +239,4 @@ void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centr
 
     // Hide Hello message
     helloLabel->setVisible(false);
-
-    // Prevent button from being pressed again
-    if (notesButton)
-    {
-        notesButton->setEnabled(false);
-    }
 }
