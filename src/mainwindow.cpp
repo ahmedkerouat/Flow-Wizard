@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QInputDialog>
+#include <QRandomGenerator>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -101,6 +102,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(notesButton, &QPushButton::clicked, [=]() { on_notesButton_clicked(notesButton,centralWidget, mainLayout, buttonLayout, mainWidget, helloLabel, gridLayout, aspectRatioWidget); });
     connect(homeButton, &QPushButton::clicked, [=]() { resetWindow(notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget); });
+    connect(inspirationButton, &QPushButton::clicked,[=](){on_inspirationButton_clicked(centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
 
 
     //add the layout to the grid layout
@@ -121,27 +123,35 @@ MainWindow::~MainWindow()
 
 void MainWindow::resetWindow(QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget)
 {
+    helloLabel->setVisible(false);
     if (centralWidget()->findChild<QWidget*>("notesWidget"))
     {
         QWidget* notesWidget = centralWidget()->findChild<QWidget*>("notesWidget");
         QWidget* mainWidget = centralWidget()->findChild<QWidget*>("mainWidget");
         gridLayout->removeWidget(notesWidget);
         delete notesWidget;
-
         mainLayout->addWidget(mainWidget); // Add mainWidget back to the mainLayout
-
         if (notesButton)
         {
             notesButton->setEnabled(true);
         }
 
     }
+    if (centralWidget()->findChild<QWidget*>("inspirationWidget")){
+        QWidget* inspirationWidget = centralWidget()->findChild<QWidget*>("inspirationWidget");
+        gridLayout->removeWidget(inspirationWidget);
+        delete inspirationWidget;
+    }
 }
 
 void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centralWidget, QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget, QLabel *helloLabel, QGridLayout *gridLayout, AspectRatioWidget *aspectRatioWidget)
 {
-    // Move mainWidget
-    mainLayout->removeWidget(aspectRatioWidget);
+    resetWindow(notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
+
+    if (notesButton)
+    {
+        notesButton->setEnabled(false);
+    }
 
     QWidget *notesWidget = new QWidget(centralWidget);
     notesWidget->setObjectName("notesWidget");
@@ -257,4 +267,50 @@ void MainWindow::on_notesButton_clicked(QPushButton *notesButton, QWidget *centr
 
     // Hide Hello message
     helloLabel->setVisible(false);
+}
+
+void MainWindow::on_inspirationButton_clicked(QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget)
+{
+    resetWindow(notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
+
+    if (inspirationButton)
+    {
+        inspirationButton->setEnabled(false);
+    }
+
+        QWidget *inspirationWidget = new QWidget(centralWidget);
+        inspirationWidget->setObjectName("inspirationWidget");
+        inspirationWidget->setStyleSheet("background-color: red;");
+        inspirationWidget->setMinimumSize(500,500);
+        AspectRatioWidget *inspirationAspectRatioWidget = new AspectRatioWidget(inspirationWidget, 4, 4, centralWidget);
+        gridLayout->addWidget(inspirationAspectRatioWidget, 1, 0, 5, 1);
+
+        QFile quotes(":/motivation/mfile.txt");
+            if(!quotes.open(QIODevice::ReadOnly | QIODevice::Text)){
+                return;
+            }
+
+            QList<QString> allQuotes;
+            QTextStream in(&quotes);
+
+            while (!in.atEnd()) {
+                QString quoteDisplayed = in.readLine();
+                allQuotes.append(quoteDisplayed);
+            }
+
+            quotes.close();
+
+            int randomNumber = QRandomGenerator::global()->bounded(allQuotes.size());
+            QString quoteDisplayed = allQuotes[randomNumber];
+
+
+        QLabel *quoteLabel = new QLabel(quoteDisplayed, inspirationAspectRatioWidget);
+        quoteLabel->setWordWrap(true);
+        quoteLabel->setAlignment(Qt::AlignCenter);
+        quoteLabel->setStyleSheet("font-size: 24px; color: white;");
+
+        QVBoxLayout *inspirationLayout = new QVBoxLayout(inspirationWidget);
+        inspirationLayout->addWidget(quoteLabel);
+        inspirationWidget->setLayout(inspirationLayout);
+
 }
