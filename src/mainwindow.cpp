@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //central widget and layout
     QWidget *centralWidget = new QWidget(this);
+    this->setMinimumSize(600,600);
     QGridLayout *gridLayout = new QGridLayout(centralWidget);
     gridLayout->setSpacing(0);
     gridLayout->setContentsMargins(0, 0, 0, 0);
@@ -44,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
     helloLabel->setStyleSheet("font-size: 44px; color: white;");
     gridLayout->addWidget(helloLabel, 0, 0, Qt::AlignTop | Qt::AlignHCenter);
 
-    // create the buttons
+    //create the buttons
     QPushButton *homeButton = new QPushButton(mainWidget);
         homeButton->setIcon(QIcon(":/imgs/logoHome.png"));
         homeButton->setIconSize(QSize(64, 64));
@@ -284,11 +285,9 @@ void MainWindow::on_inspirationButton_clicked(QPushButton* inspirationButton,QWi
 
         QWidget *inspirationWidget = new QWidget(centralWidget);
         inspirationWidget->setObjectName("inspirationWidget");
-        inspirationWidget->setStyleSheet("background-color: red;");
         inspirationWidget->setMinimumSize(500,500);
         AspectRatioWidget *inspirationAspectRatioWidget = new AspectRatioWidget(inspirationWidget, 4, 4, centralWidget);
         gridLayout->addWidget(inspirationAspectRatioWidget, 1, 0, 5, 1);
-
         QFile quotes(":/motivation/mfile.txt");
             if(!quotes.open(QIODevice::ReadOnly | QIODevice::Text)){
                 return;
