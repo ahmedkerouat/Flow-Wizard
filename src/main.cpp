@@ -23,6 +23,8 @@ int main(int argc, char *argv[])
     font.setPointSize(12);
     qApp->setFont(font);
 
+    QIcon appIcon(":/imgs/icon.png");
+    a.setWindowIcon(appIcon);
     w.show();
 
     if (!valFirstTime.isValid()) {
