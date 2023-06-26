@@ -12,6 +12,8 @@
 #include <QFile>
 #include <QInputDialog>
 #include <QRandomGenerator>
+#include <QMessageBox>
+#include <iostream>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -26,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //central widget and layout
     QWidget *centralWidget = new QWidget(this);
-    this->setMinimumSize(600,600);
+    this->setMinimumSize(750,600);
     QGridLayout *gridLayout = new QGridLayout(centralWidget);
     gridLayout->setSpacing(0);
     gridLayout->setContentsMargins(0, 0, 0, 0);
@@ -104,6 +106,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(notesButton, &QPushButton::clicked, [=]() { on_notesButton_clicked(inspirationButton,notesButton,centralWidget, mainLayout, buttonLayout, mainWidget, helloLabel, gridLayout, aspectRatioWidget); });
     connect(homeButton, &QPushButton::clicked, [=]() { resetWindow(inspirationButton,notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget); });
     connect(inspirationButton, &QPushButton::clicked,[=](){on_inspirationButton_clicked(inspirationButton,centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
+    connect(goalsButton, &QPushButton::clicked,[=](){on_GoalsButton_clicked(inspirationButton,goalsButton,centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
 
 
     //add the layout to the grid layout
@@ -317,3 +320,168 @@ void MainWindow::on_inspirationButton_clicked(QPushButton* inspirationButton,QWi
         inspirationWidget->setLayout(inspirationLayout);
 
 }
+
+void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushButton* goalsButton, QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget)
+{
+    resetWindow(inspirationButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
+
+    if (goalsButton)
+    {
+        goalsButton->setEnabled(false);
+    }
+
+    QWidget* goalsWidget = new QWidget(centralWidget);
+    goalsWidget->setObjectName("goalsWidget");
+    goalsWidget->setMinimumSize(750, 500);
+    AspectRatioWidget* goalsAspectRatioWidget = new AspectRatioWidget(goalsWidget, 16, 9, centralWidget);
+    gridLayout->addWidget(goalsAspectRatioWidget, 1, 0, 5, 1);
+
+    QVBoxLayout* mainGoalsLayout = new QVBoxLayout(goalsWidget);
+    mainGoalsLayout->setAlignment(Qt::AlignTop);
+
+    QHBoxLayout* goalsLayout = new QHBoxLayout();
+    mainGoalsLayout->addLayout(goalsLayout);
+
+    int goalCounter = 0;
+    int totalGoalCounter = 0;
+    const int maxGoals = 3;
+
+    QHBoxLayout* goalsContainerLayout = new QHBoxLayout();
+    goalsContainerLayout->setSpacing(10);
+    goalsContainerLayout->setContentsMargins(0, 0, 0, 0);
+
+    QPushButton* addGoalButton = new QPushButton("Add Goal");
+    addGoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 8px 16px; border-radius: 4px;");
+    goalsLayout->addWidget(addGoalButton, 0, Qt::AlignBottom | Qt::AlignLeft);
+
+    goalsWidget->setStyleSheet("background-color: red");
+
+    QObject::connect(addGoalButton, &QPushButton::clicked, [=]() mutable {
+        if (goalCounter < maxGoals) {
+            goalCounter++;
+            totalGoalCounter++;
+
+            QWidget* goalWidget = new QWidget(goalsWidget);
+            goalWidget->setObjectName("goalWidget");
+            goalWidget->setStyleSheet("background-color: yellow;");
+
+            QVBoxLayout* goalWidgetLayout = new QVBoxLayout(goalWidget);
+
+            QHBoxLayout* goalHeaderLayout = new QHBoxLayout();
+            goalWidgetLayout->addLayout(goalHeaderLayout);
+
+            QLineEdit* goalNameLineEdit = new QLineEdit;
+            goalNameLineEdit->setText("Goal " + QString::number(totalGoalCounter));
+            goalNameLineEdit->setStyleSheet("background-color: transparent; border: none; color: blue; font-size: 16px; padding: 5px;");
+            goalNameLineEdit->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+            goalNameLineEdit->setReadOnly(true);
+            goalHeaderLayout->addWidget(goalNameLineEdit);
+
+            QPushButton* deleteGoalButton = new QPushButton("delete");
+            deleteGoalButton->setFixedSize(24, 24);
+            deleteGoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+            goalHeaderLayout->addWidget(deleteGoalButton);
+
+            QPushButton* editGoalNameButton = new QPushButton("edit");
+            editGoalNameButton->setFixedSize(24, 24);
+            editGoalNameButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+            goalHeaderLayout->addWidget(editGoalNameButton);
+
+            QPushButton* addSubgoalButton = new QPushButton("+");
+            addSubgoalButton->setFixedSize(24, 24);
+            addSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+            goalHeaderLayout->addWidget(addSubgoalButton);
+
+            QObject::connect(deleteGoalButton, &QPushButton::clicked, [goalWidget, &goalCounter]() mutable {
+                goalCounter--;
+                if (goalWidget && goalWidget->parentWidget()) {
+                    goalWidget->deleteLater();
+                }
+            });
+
+            QObject::connect(editGoalNameButton, &QPushButton::clicked, [=]() mutable {
+                QString currentText = goalNameLineEdit->text();
+                QString editText = QInputDialog::getText(goalsWidget, "Edit Goal Name", "Enter new text:", QLineEdit::Normal, currentText);
+                if (!editText.isEmpty()) {
+                    goalNameLineEdit->setText(editText);
+                }
+            });
+            QScrollArea* subgoalsScrollArea = new QScrollArea();
+            subgoalsScrollArea->setStyleSheet("QScrollArea { background-color: #f7f7f7; border: none; border-radius: 8px; padding: 5px; }");
+            subgoalsScrollArea->setWidgetResizable(true);
+            subgoalsScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+            QWidget* subgoalsContainerWidget = new QWidget();
+            QVBoxLayout* subgoalsContainerLayout = new QVBoxLayout(subgoalsContainerWidget);
+            subgoalsContainerLayout->setSpacing(10);
+            subgoalsContainerLayout->setContentsMargins(0, 0, 0, 0);
+            subgoalsScrollArea->setWidget(subgoalsContainerWidget);
+
+            goalWidgetLayout->addWidget(subgoalsScrollArea);
+
+            QObject::connect(addSubgoalButton, &QPushButton::clicked, [=]() mutable {
+                QHBoxLayout* subgoalLayout = new QHBoxLayout();
+
+                QLabel* subgoalLabel = new QLabel("Subgoal");
+                subgoalLabel->setStyleSheet("font-size: 14px;");
+                subgoalLayout->addWidget(subgoalLabel);
+
+                QPushButton* markSubgoalButton = new QPushButton("done");
+                markSubgoalButton->setFixedSize(24, 24);
+                markSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+                subgoalLayout->addWidget(markSubgoalButton);
+
+                QPushButton* editSubgoalButton = new QPushButton("edit");
+                editSubgoalButton->setFixedSize(24, 24);
+                editSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+                subgoalLayout->addWidget(editSubgoalButton);
+
+                QPushButton* deleteSubgoalButton = new QPushButton("delete");
+                deleteSubgoalButton->setFixedSize(24, 24);
+                deleteSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+                subgoalLayout->addWidget(deleteSubgoalButton);
+
+                QObject::connect(markSubgoalButton, &QPushButton::clicked, [=]() mutable {
+                    QFont font = subgoalLabel->font();
+                    bool isStrikedOut = font.strikeOut();
+                    font.setStrikeOut(!isStrikedOut);
+                    subgoalLabel->setFont(font);
+                    markSubgoalButton->setEnabled(!isStrikedOut);
+                });
+
+
+                QObject::connect(editSubgoalButton, &QPushButton::clicked, [=]() mutable {
+                    QString currentText = subgoalLabel->text();
+                    QString editText = QInputDialog::getText(goalsWidget, "Edit Subgoal", "Enter new text:", QLineEdit::Normal, currentText);
+                    if (!editText.isEmpty()) {
+                        subgoalLabel->setText(editText);
+                    }
+                });
+
+                QObject::connect(deleteSubgoalButton, &QPushButton::clicked, [=]() mutable {
+                    deleteSubgoalButton->deleteLater();
+                    markSubgoalButton->deleteLater();
+                    editSubgoalButton->deleteLater();
+                    subgoalLabel->deleteLater();
+                    subgoalLayout->deleteLater();
+                });
+
+                subgoalsContainerLayout->addLayout(subgoalLayout);
+            });
+
+            goalsContainerLayout->insertWidget(goalsContainerLayout->count() / 2, goalWidget);
+            AspectRatioWidget* goalWidgetAspectRatioWidget = new AspectRatioWidget(goalWidget, 12, 8, goalsWidget);
+            goalsContainerLayout->insertWidget(goalsContainerLayout->count() / 2, goalWidgetAspectRatioWidget);
+
+        }
+        else
+            QMessageBox::warning(goalsWidget, "Maximum Goals Reached", "You should focus on 3 goals or less for your own good.");
+    });
+
+    mainGoalsLayout->addLayout(goalsContainerLayout);
+
+    goalsWidget->setLayout(mainGoalsLayout);
+}
+
+
+
