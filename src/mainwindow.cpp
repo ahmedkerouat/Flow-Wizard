@@ -354,7 +354,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
     addGoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 8px 16px; border-radius: 4px;");
     goalsLayout->addWidget(addGoalButton, 0, Qt::AlignBottom | Qt::AlignLeft);
 
-    goalsWidget->setStyleSheet("background-color: red");
+    goalsWidget->setStyleSheet("background-color: #071426");
 
     QObject::connect(addGoalButton, &QPushButton::clicked, [=]() mutable {
         if (goalCounter < maxGoals) {
@@ -363,7 +363,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
 
             QWidget* goalWidget = new QWidget(goalsWidget);
             goalWidget->setObjectName("goalWidget");
-            goalWidget->setStyleSheet("background-color: yellow;");
+            goalWidget->setStyleSheet("background-color: #071426;");
 
             QVBoxLayout* goalWidgetLayout = new QVBoxLayout(goalWidget);
 
@@ -372,7 +372,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
 
             QLineEdit* goalNameLineEdit = new QLineEdit;
             goalNameLineEdit->setText("Goal " + QString::number(totalGoalCounter));
-            goalNameLineEdit->setStyleSheet("background-color: transparent; border: none; color: blue; font-size: 16px; padding: 5px;");
+            goalNameLineEdit->setStyleSheet("background-color: transparent; border: none; color: white; font-size: 16px; padding: 5px;");
             goalNameLineEdit->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
             goalNameLineEdit->setReadOnly(true);
             goalHeaderLayout->addWidget(goalNameLineEdit);
@@ -423,7 +423,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                 QHBoxLayout* subgoalLayout = new QHBoxLayout();
 
                 QLabel* subgoalLabel = new QLabel("Subgoal");
-                subgoalLabel->setStyleSheet("font-size: 14px;");
+                subgoalLabel->setStyleSheet("color:white; font-size: 14px;");
                 subgoalLayout->addWidget(subgoalLabel);
 
                 QPushButton* markSubgoalButton = new QPushButton("done");
@@ -446,7 +446,6 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                     bool isStrikedOut = font.strikeOut();
                     font.setStrikeOut(!isStrikedOut);
                     subgoalLabel->setFont(font);
-                    markSubgoalButton->setEnabled(!isStrikedOut);
                 });
 
 
