@@ -8,5 +8,8 @@
         <file>imgs/logoNotes.png</file>
         <file>motivation/mfile.txt</file>
         <file>imgs/icon.png</file>
+        <file>imgs/deleteIcon.png</file>
+        <file>imgs/doneIcon.png</file>
+        <file>imgs/modifyIcon.png</file>
     </qresource>
 </RCC>

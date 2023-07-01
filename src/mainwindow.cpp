@@ -386,13 +386,15 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
             goalNameLineEdit->setReadOnly(true);
             goalHeaderLayout->addWidget(goalNameLineEdit);
 
-            QPushButton* deleteGoalButton = new QPushButton("delete");
+            QPushButton* deleteGoalButton = new QPushButton();
             deleteGoalButton->setFixedSize(24, 24);
+            deleteGoalButton->setIcon(QIcon(":/imgs/deleteIcon.png"));
             deleteGoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
             goalHeaderLayout->addWidget(deleteGoalButton);
 
-            QPushButton* editGoalNameButton = new QPushButton("edit");
+            QPushButton* editGoalNameButton = new QPushButton();
             editGoalNameButton->setFixedSize(24, 24);
+            editGoalNameButton->setIcon(QIcon(":/imgs/modifyIcon.png"));
             editGoalNameButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
             goalHeaderLayout->addWidget(editGoalNameButton);
 
@@ -442,18 +444,21 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                 subgoalLabel->setStyleSheet("color:white; font-size: 14px;");
                 subgoalLayout->addWidget(subgoalLabel);
 
-                QPushButton* markSubgoalButton = new QPushButton("done");
+                QPushButton* markSubgoalButton = new QPushButton();
                 markSubgoalButton->setFixedSize(24, 24);
+                markSubgoalButton->setIcon(QIcon(":/imgs/doneIcon.png"));
                 markSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
                 subgoalLayout->addWidget(markSubgoalButton);
 
-                QPushButton* editSubgoalButton = new QPushButton("edit");
+                QPushButton* editSubgoalButton = new QPushButton();
+                editSubgoalButton->setIcon(QIcon(":/imgs/modifyIcon.png"));
                 editSubgoalButton->setFixedSize(24, 24);
                 editSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
                 subgoalLayout->addWidget(editSubgoalButton);
 
-                QPushButton* deleteSubgoalButton = new QPushButton("delete");
+                QPushButton* deleteSubgoalButton = new QPushButton();
                 deleteSubgoalButton->setFixedSize(24, 24);
+                deleteSubgoalButton->setIcon(QIcon(":/imgs/deleteIcon.png"));
                 deleteSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
                 subgoalLayout->addWidget(deleteSubgoalButton);
 
