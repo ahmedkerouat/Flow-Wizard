@@ -14,6 +14,7 @@
 #include <QRandomGenerator>
 #include <QMessageBox>
 #include <iostream>
+#include <QShortcut>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -170,11 +171,19 @@ void MainWindow::on_notesButton_clicked(QPushButton* inspirationButton,QPushButt
     //scroll area for the notes
     QScrollArea *scrollArea = new QScrollArea(notesWidget);
     scrollArea->setWidgetResizable(true);
+    scrollArea->setStyleSheet("QScrollArea { background-color: transparent; border: none; width:10px;margin: 0px 0px 0px 0px;}"
+                              "QScrollBar::add-page:vertical { background-color: #071426; }"
+                              "QScrollBar::sub-page:vertical { background-color: #071426; }"
+                              "QScrollBar::handle:vertical {"
+                                  "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+                                  "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130), stop:1 rgb(32, 47, 130));"
+                                  "    min-height: 0px;"
+                                  "}");
 
     // text edit widget for the notepad
     QTextEdit *notepad = new QTextEdit(scrollArea);
     notepad->setObjectName("notepad");
-    notepad->setStyleSheet("background-color: #2B2D42; color: white;");
+    notepad->setStyleSheet("background-color: #0B1F3B;; color: white;");
 
     scrollArea->setWidget(notepad);
 
@@ -233,6 +242,11 @@ void MainWindow::on_notesButton_clicked(QPushButton* inspirationButton,QPushButt
             notepad->setProperty("filePath", filePath);
         }
     });
+
+    QShortcut* saveShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_S), notepad);
+
+    QObject::connect(saveShortcut, &QShortcut::activated, saveButton, &QPushButton::click);
+
 
 
     QPushButton *newButton = new QPushButton("New");
@@ -325,11 +339,6 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
 {
     resetWindow(inspirationButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
 
-    if (goalsButton)
-    {
-        goalsButton->setEnabled(false);
-    }
-
     QWidget* goalsWidget = new QWidget(centralWidget);
     goalsWidget->setObjectName("goalsWidget");
     goalsWidget->setMinimumSize(750, 500);
@@ -363,7 +372,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
 
             QWidget* goalWidget = new QWidget(goalsWidget);
             goalWidget->setObjectName("goalWidget");
-            goalWidget->setStyleSheet("background-color: #071426;");
+            goalWidget->setStyleSheet("background-color: #0B1F3B;");
 
             QVBoxLayout* goalWidgetLayout = new QVBoxLayout(goalWidget);
 
@@ -407,7 +416,14 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                 }
             });
             QScrollArea* subgoalsScrollArea = new QScrollArea();
-            subgoalsScrollArea->setStyleSheet("QScrollArea { background-color: #f7f7f7; border: none; border-radius: 8px; padding: 5px; }");
+            subgoalsScrollArea->setStyleSheet("QScrollArea { background-color: transparent; border: none; width:10px;margin: 0px 0px 0px 0px;}"
+                                              "QScrollBar::add-page:vertical { background-color: #071426; }"
+                                              "QScrollBar::sub-page:vertical { background-color: #071426; }"
+                                              "QScrollBar::handle:vertical {"
+                                                  "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+                                                  "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130), stop:1 rgb(32, 47, 130));"
+                                                  "    min-height: 0px;"
+                                                  "}");
             subgoalsScrollArea->setWidgetResizable(true);
             subgoalsScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
