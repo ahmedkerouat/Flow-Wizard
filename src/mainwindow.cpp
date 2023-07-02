@@ -406,9 +406,38 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
             QObject::connect(deleteGoalButton, &QPushButton::clicked, [goalWidget, &goalCounter]() mutable {
                 goalCounter--;
                 if (goalWidget && goalWidget->parentWidget()) {
-                    goalWidget->deleteLater();
+                    QMessageBox msgBox;
+                    msgBox.setWindowTitle("Confirmation");
+                    msgBox.setText("Are you sure you want to delete this goal?");
+                    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                    msgBox.setDefaultButton(QMessageBox::No);
+
+                    msgBox.setStyleSheet("QMessageBox {"
+                                          "background-color: #071426;"
+                                          "border: transparent;"
+                                          "}"
+                                          "QMessageBox QLabel {"
+                                          "color: white;"
+                                          "}"
+                                          "QMessageBox QPushButton {"
+                                         "background-color: #009ace;"
+                                         "color: white;"
+                                         "border: none;"
+                                          "}"
+                                          "QMessageBox QPushButton:hover {"
+                                          "background-color: #1C82E7;"
+                                          "}"
+                                         "QMessageBox QPushButton:pressed{"
+                                         "background-color: #1669C6;"
+                                         "}");
+
+                    if (msgBox.exec() == QMessageBox::Yes) {
+                        goalWidget->deleteLater();
+                    }
                 }
             });
+
+
 
             QObject::connect(editGoalNameButton, &QPushButton::clicked, [=]() mutable {
                 QString currentText = goalNameLineEdit->text();
