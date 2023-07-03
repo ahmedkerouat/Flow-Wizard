@@ -582,8 +582,34 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
             goalsContainerLayout->insertWidget(goalsContainerLayout->count() / 2, goalWidgetAspectRatioWidget);
 
         }
-        else
-            QMessageBox::warning(goalsWidget, "Maximum Goals Reached", "You should focus on 3 goals or less for your own good.");
+        else{
+            QMessageBox warningBox;
+            warningBox.setWindowTitle("Warning");
+            warningBox.setText("You should focus on 3 goals or less for your own good.");
+            warningBox.setStandardButtons(QMessageBox::Ok);
+
+            warningBox.setStyleSheet("QMessageBox {"
+                                  "background-color: #071426;"
+                                  "border: transparent;"
+                                  "}"
+                                  "QMessageBox QLabel {"
+                                  "color: white;"
+                                  "}"
+                                  "QMessageBox QPushButton {"
+                                 "background-color: #009ace;"
+                                 "color: white;"
+                                 "border: none;"
+                                  "}"
+                                  "QMessageBox QPushButton:hover {"
+                                  "background-color: #1C82E7;"
+                                  "}"
+                                 "QMessageBox QPushButton:pressed{"
+                                 "background-color: #1669C6;"
+                                 "}");
+
+            warningBox.exec();
+        }
+
     });
 
     mainGoalsLayout->addLayout(goalsContainerLayout);
