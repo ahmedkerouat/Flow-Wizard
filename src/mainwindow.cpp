@@ -13,7 +13,6 @@
 #include <QInputDialog>
 #include <QRandomGenerator>
 #include <QMessageBox>
-#include <iostream>
 #include <QShortcut>
 
 
