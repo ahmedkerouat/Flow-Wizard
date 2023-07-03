@@ -204,33 +204,92 @@ void MainWindow::on_notesButton_clicked(QPushButton* inspirationButton,QPushButt
     QPushButton *saveButton = new QPushButton("Save");
     connect(saveButton, &QPushButton::clicked, [notepad]() {
         QString text = notepad->toPlainText();
-
         QString filePath = notepad->property("filePath").toString();
 
         // If the file path is not set, prompt for a file name
         if (filePath.isEmpty()) {
             bool gotOk = false;
-            QString fileName = QInputDialog::getText(notepad, "Save File", "Enter file name:", QLineEdit::Normal, "", &gotOk);
-            if (gotOk) {
-                QString defaultFolder = QDir::currentPath();
-                QString folderPath = defaultFolder + QDir::separator() + "savedFiles";
-                QDir().mkpath(folderPath);
 
-                filePath = folderPath + QDir::separator() + fileName + ".txt";
+            QDialog inputDialog(notepad);
+            inputDialog.setWindowTitle("Save File");
 
-                // Check if the file already exists
-                if (QFile::exists(filePath)) {
-                    int fileCount = 1;
-                    QString baseFileName = fileName;
-                    while (QFile::exists(filePath)) {
-                        fileName = baseFileName + "_" + QString::number(fileCount);
-                        filePath = folderPath + QDir::separator() + fileName + ".txt";
-                        fileCount++;
+            QLabel* label = new QLabel("Enter file name:", &inputDialog);
+
+            QLineEdit* lineEdit = new QLineEdit(&inputDialog);
+            lineEdit->setObjectName("fileNameLineEdit");
+
+            QPushButton* okButton = new QPushButton("OK", &inputDialog);
+            okButton->setObjectName("okButton");
+            connect(okButton, &QPushButton::clicked, &inputDialog, &QDialog::accept);
+
+            QPushButton* cancelButton = new QPushButton("Cancel", &inputDialog);
+            cancelButton->setObjectName("cancelButton");
+            connect(cancelButton, &QPushButton::clicked, &inputDialog, &QDialog::reject);
+
+            QVBoxLayout* layout = new QVBoxLayout(&inputDialog);
+            layout->addWidget(label);
+            layout->addWidget(lineEdit);
+
+            QHBoxLayout* buttonLayout = new QHBoxLayout;
+            buttonLayout->addWidget(okButton);
+            buttonLayout->addWidget(cancelButton);
+            layout->addLayout(buttonLayout);
+
+            inputDialog.setStyleSheet("QDialog {"
+                                          "background-color: #071426;"
+                                          "border: transparent;"
+                                      "}"
+                                      "QLabel {"
+                                          "color: white;"
+                                      "}"
+                                      "QLineEdit#fileNameLineEdit {"
+                                          "background-color: #071426;"
+                                          "color: white;"
+                                          "border: 1px solid white;"
+                                      "}"
+                                      "QPushButton#okButton {"
+                                          "background-color: #009ace;"
+                                          "color: white;"
+                                          "border: none;"
+                                      "}"
+                                      "QPushButton#okButton:hover {"
+                                          "background-color: #1C82E7;"
+                                      "}"
+                                      "QPushButton#cancelButton {"
+                                          "background-color: #009ace;"
+                                          "color: white;"
+                                          "border: none;"
+                                      "}"
+                                      "QPushButton#cancelButton:hover {"
+                                          "background-color: #1C82E7;"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                          "background-color: #1669C6;"
+                                      "}");
+
+            if (inputDialog.exec() == QDialog::Accepted) {
+                QString fileName = lineEdit->text();
+                if (!fileName.isEmpty()) {
+                    QString defaultFolder = QDir::currentPath();
+                    QString folderPath = defaultFolder + QDir::separator() + "savedFiles";
+                    QDir().mkpath(folderPath);
+
+                    filePath = folderPath + QDir::separator() + fileName + ".txt";
+
+                    // Check if the file already exists
+                    if (QFile::exists(filePath)) {
+                        int fileCount = 1;
+                        QString baseFileName = fileName;
+                        while (QFile::exists(filePath)) {
+                            fileName = baseFileName + "_" + QString::number(fileCount);
+                            filePath = folderPath + QDir::separator() + fileName + ".txt";
+                            fileCount++;
+                        }
                     }
                 }
-                gotOk = false;
             }
         }
+
 
         // Save the file
         QFile file(filePath);
