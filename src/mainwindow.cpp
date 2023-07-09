@@ -499,11 +499,72 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
 
             QObject::connect(editGoalNameButton, &QPushButton::clicked, [=]() mutable {
                 QString currentText = goalNameLineEdit->text();
-                QString editText = QInputDialog::getText(goalsWidget, "Edit Goal Name", "Enter new text:", QLineEdit::Normal, currentText);
-                if (!editText.isEmpty()) {
-                    goalNameLineEdit->setText(editText);
+
+                QDialog inputDialog(goalsWidget);
+                inputDialog.setWindowTitle("Edit Goal Name");
+
+                QLabel* label = new QLabel("Enter new text:", &inputDialog);
+
+                QLineEdit* lineEdit = new QLineEdit(&inputDialog);
+                lineEdit->setObjectName("newTextEdit");
+
+                QPushButton* okButton = new QPushButton("OK", &inputDialog);
+                okButton->setObjectName("okButton");
+                connect(okButton, &QPushButton::clicked, &inputDialog, &QDialog::accept);
+
+                QPushButton* cancelButton = new QPushButton("Cancel", &inputDialog);
+                cancelButton->setObjectName("cancelButton");
+                connect(cancelButton, &QPushButton::clicked, &inputDialog, &QDialog::reject);
+
+                QVBoxLayout* layout = new QVBoxLayout(&inputDialog);
+                layout->addWidget(label);
+                layout->addWidget(lineEdit);
+
+                QHBoxLayout* buttonLayout = new QHBoxLayout;
+                buttonLayout->addWidget(okButton);
+                buttonLayout->addWidget(cancelButton);
+                layout->addLayout(buttonLayout);
+
+                inputDialog.setStyleSheet("QDialog {"
+                                              "background-color: #071426;"
+                                              "border: transparent;"
+                                          "}"
+                                          "QLabel {"
+                                              "color: white;"
+                                          "}"
+                                          "QLineEdit#newTextEdit {"
+                                              "background-color: #071426;"
+                                              "color: white;"
+                                              "border: 1px solid white;"
+                                          "}"
+                                          "QPushButton#okButton {"
+                                              "background-color: #009ace;"
+                                              "color: white;"
+                                              "border: none;"
+                                          "}"
+                                          "QPushButton#okButton:hover {"
+                                              "background-color: #1C82E7;"
+                                          "}"
+                                          "QPushButton#cancelButton {"
+                                              "background-color: #009ace;"
+                                              "color: white;"
+                                              "border: none;"
+                                          "}"
+                                          "QPushButton#cancelButton:hover {"
+                                              "background-color: #1C82E7;"
+                                          "}"
+                                          "QPushButton:pressed {"
+                                              "background-color: #1669C6;"
+                                          "}");
+
+                if (inputDialog.exec() == QDialog::Accepted) {
+                    QString editText = lineEdit->text();
+                    if (!editText.isEmpty()) {
+                        goalNameLineEdit->setText(editText);
+                    }
                 }
             });
+
             QScrollArea* subgoalsScrollArea = new QScrollArea();
             subgoalsScrollArea->setStyleSheet("QScrollArea { background-color: transparent; border: none; width:10px;margin: 0px 0px 0px 0px;}"
                                               "QScrollBar::add-page:vertical { background-color: #071426; }"
@@ -559,11 +620,72 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
 
                 QObject::connect(editSubgoalButton, &QPushButton::clicked, [=]() mutable {
                     QString currentText = subgoalLabel->text();
-                    QString editText = QInputDialog::getText(goalsWidget, "Edit Subgoal", "Enter new text:", QLineEdit::Normal, currentText);
-                    if (!editText.isEmpty()) {
-                        subgoalLabel->setText(editText);
+
+                    QDialog inputDialog(goalsWidget);
+                    inputDialog.setWindowTitle("Edit Subgoal");
+
+                    QLabel* label = new QLabel("Enter new text:", &inputDialog);
+
+                    QLineEdit* lineEdit = new QLineEdit(&inputDialog);
+                    lineEdit->setObjectName("newTextEdit");
+
+                    QPushButton* okButton = new QPushButton("OK", &inputDialog);
+                    okButton->setObjectName("okButton");
+                    connect(okButton, &QPushButton::clicked, &inputDialog, &QDialog::accept);
+
+                    QPushButton* cancelButton = new QPushButton("Cancel", &inputDialog);
+                    cancelButton->setObjectName("cancelButton");
+                    connect(cancelButton, &QPushButton::clicked, &inputDialog, &QDialog::reject);
+
+                    QVBoxLayout* layout = new QVBoxLayout(&inputDialog);
+                    layout->addWidget(label);
+                    layout->addWidget(lineEdit);
+
+                    QHBoxLayout* buttonLayout = new QHBoxLayout;
+                    buttonLayout->addWidget(okButton);
+                    buttonLayout->addWidget(cancelButton);
+                    layout->addLayout(buttonLayout);
+
+                    inputDialog.setStyleSheet("QDialog {"
+                                                  "background-color: #071426;"
+                                                  "border: transparent;"
+                                              "}"
+                                              "QLabel {"
+                                                  "color: white;"
+                                              "}"
+                                              "QLineEdit#newTextEdit {"
+                                                  "background-color: #071426;"
+                                                  "color: white;"
+                                                  "border: 1px solid white;"
+                                              "}"
+                                              "QPushButton#okButton {"
+                                                  "background-color: #009ace;"
+                                                  "color: white;"
+                                                  "border: none;"
+                                              "}"
+                                              "QPushButton#okButton:hover {"
+                                                  "background-color: #1C82E7;"
+                                              "}"
+                                              "QPushButton#cancelButton {"
+                                                  "background-color: #009ace;"
+                                                  "color: white;"
+                                                  "border: none;"
+                                              "}"
+                                              "QPushButton#cancelButton:hover {"
+                                                  "background-color: #1C82E7;"
+                                              "}"
+                                              "QPushButton:pressed {"
+                                                  "background-color: #1669C6;"
+                                              "}");
+
+                    if (inputDialog.exec() == QDialog::Accepted) {
+                        QString editText = lineEdit->text();
+                        if (!editText.isEmpty()) {
+                            subgoalLabel->setText(editText);
+                        }
                     }
                 });
+
 
                 QObject::connect(deleteSubgoalButton, &QPushButton::clicked, [=]() mutable {
                     deleteSubgoalButton->deleteLater();
