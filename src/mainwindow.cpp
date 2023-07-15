@@ -14,6 +14,9 @@
 #include <QRandomGenerator>
 #include <QMessageBox>
 #include <QShortcut>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -423,10 +426,22 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
 
     goalsWidget->setStyleSheet("background-color: #071426");
 
-    QObject::connect(addGoalButton, &QPushButton::clicked, [=]() mutable {
+    QObject::connect(addGoalButton, &QPushButton::clicked,[=]() mutable {
         if (goalCounter < maxGoals) {
             goalCounter++;
             totalGoalCounter++;
+            QJsonObject jsonGoal;
+            jsonGoal.insert("title",goalCounter);
+            QJsonDocument document;
+                    document.setObject( jsonGoal );
+                    QByteArray bytes = document.toJson( QJsonDocument::Indented );
+                    QFile file("goals.json");
+                    if( file.open( QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate ) )
+                    {
+                        QTextStream iStream( &file );
+                        iStream << bytes;
+                        file.close();
+                    }
 
             QWidget* goalWidget = new QWidget(goalsWidget);
             goalWidget->setObjectName("goalWidget");
@@ -736,6 +751,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
     mainGoalsLayout->addLayout(goalsContainerLayout);
 
     goalsWidget->setLayout(mainGoalsLayout);
+
 }
 
 
