@@ -435,7 +435,8 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
             QJsonDocument document;
                     document.setObject( jsonGoal );
                     QByteArray bytes = document.toJson( QJsonDocument::Indented );
-                    QFile file("goals.json");
+                    QString fileName = QString("goal_%1.json").arg(goalCounter);
+                    QFile file(fileName);
                     if( file.open( QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate ) )
                     {
                         QTextStream iStream( &file );
