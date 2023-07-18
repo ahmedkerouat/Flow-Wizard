@@ -430,12 +430,18 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
         if (goalCounter < maxGoals) {
             goalCounter++;
             totalGoalCounter++;
+
+            QString folderName = "savedGoals";
+            QDir folderDir;
+            folderDir.mkpath(folderName);
             QJsonObject jsonGoal;
+
             jsonGoal.insert("title",goalCounter);
+            jsonGoal.insert("number",goalCounter);
             QJsonDocument document;
                     document.setObject( jsonGoal );
                     QByteArray bytes = document.toJson( QJsonDocument::Indented );
-                    QString fileName = QString("goal_%1.json").arg(goalCounter);
+                    QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
                     QFile file(fileName);
                     if( file.open( QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate ) )
                     {
