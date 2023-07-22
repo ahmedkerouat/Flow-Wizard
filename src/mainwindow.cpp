@@ -438,6 +438,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
 
             jsonGoal.insert("title",goalCounter);
             jsonGoal.insert("number",goalCounter);
+            jsonGoal.insert("subgoals",0);
             QJsonDocument document;
                     document.setObject( jsonGoal );
                     QByteArray bytes = document.toJson( QJsonDocument::Indented );
@@ -641,6 +642,18 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                 deleteSubgoalButton->setIcon(QIcon(":/imgs/deleteIcon.png"));
                 deleteSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
                 subgoalLayout->addWidget(deleteSubgoalButton);
+
+                QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
+                QFile file(fileName);
+                if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
+                    QByteArray data = file.readAll();
+                    QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+                    QJsonObject jsonObj = jsonDoc.object();
+                    jsonObj["subgoals"] = jsonObj["subgoals"].toInt() + 1;
+                    file.resize(0);
+                    file.write(QJsonDocument(jsonObj).toJson());
+                    file.close();
+                }
 
                 QObject::connect(markSubgoalButton, &QPushButton::clicked, [=]() mutable {
                     QFont font = subgoalLabel->font();
