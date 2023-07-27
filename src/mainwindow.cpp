@@ -435,10 +435,13 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
             QDir folderDir;
             folderDir.mkpath(folderName);
             QJsonObject jsonGoal;
+            QJsonObject jsonSubgoals;
 
             jsonGoal.insert("title",goalCounter);
             jsonGoal.insert("number",goalCounter);
             jsonGoal.insert("subgoals",0);
+            jsonGoal.insert("subgoalsTitles",jsonSubgoals);
+
             QJsonDocument document;
                     document.setObject( jsonGoal );
                     QByteArray bytes = document.toJson( QJsonDocument::Indented );
@@ -650,6 +653,16 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                     QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
                     QJsonObject jsonObj = jsonDoc.object();
                     jsonObj["subgoals"] = jsonObj["subgoals"].toInt() + 1;
+
+                    int subgoalIndex = jsonObj["subgoals"].toInt() + 1;
+
+                    QJsonObject subgoalTitles = jsonObj["subgoalsTitles"].toObject();
+                    QJsonObject subgoalDefault;
+                    subgoalDefault.insert("Subgoal", false);
+                    QString subgoalTitle = QString("Subgoal%1").arg(jsonObj["subgoals"].toInt());
+                    subgoalTitles.insert(subgoalTitle,subgoalDefault);
+                    jsonObj["subgoalsTitles"] = subgoalTitles;
+
                     file.resize(0);
                     file.write(QJsonDocument(jsonObj).toJson());
                     file.close();
@@ -733,6 +746,20 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
 
 
                 QObject::connect(deleteSubgoalButton, &QPushButton::clicked, [=]() mutable {
+
+                    QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
+                    QFile file(fileName);
+                    if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
+                        QByteArray data = file.readAll();
+                        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+                        QJsonObject jsonObj = jsonDoc.object();
+                        jsonObj["subgoals"] = jsonObj["subgoals"].toInt() - 1;
+                        file.resize(0);
+                        file.write(QJsonDocument(jsonObj).toJson());
+                        file.close();
+                    }
+
+
                     deleteSubgoalButton->deleteLater();
                     markSubgoalButton->deleteLater();
                     editSubgoalButton->deleteLater();
