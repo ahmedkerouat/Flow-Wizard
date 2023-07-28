@@ -646,6 +646,8 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                 deleteSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
                 subgoalLayout->addWidget(deleteSubgoalButton);
 
+                int subgoalIndex;
+
                 QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
                 QFile file(fileName);
                 if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
@@ -654,11 +656,12 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                     QJsonObject jsonObj = jsonDoc.object();
                     jsonObj["subgoals"] = jsonObj["subgoals"].toInt() + 1;
 
-                    int subgoalIndex = jsonObj["subgoals"].toInt() + 1;
+                    subgoalIndex = jsonObj["subgoals"].toInt();
 
                     QJsonObject subgoalTitles = jsonObj["subgoalsTitles"].toObject();
                     QJsonObject subgoalDefault;
-                    subgoalDefault.insert("Subgoal", false);
+                    subgoalDefault.insert("marked", false);
+                    subgoalDefault.insert("title", "Subgoal");
                     QString subgoalTitle = QString("Subgoal%1").arg(jsonObj["subgoals"].toInt());
                     subgoalTitles.insert(subgoalTitle,subgoalDefault);
                     jsonObj["subgoalsTitles"] = subgoalTitles;
@@ -673,6 +676,27 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                     bool isStrikedOut = font.strikeOut();
                     font.setStrikeOut(!isStrikedOut);
                     subgoalLabel->setFont(font);
+
+                    QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
+                    QFile file(fileName);
+                    if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+                        QByteArray data = file.readAll();
+                        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+                        QJsonObject jsonObj = jsonDoc.object();
+                        subgoalIndex = jsonObj["subgoals"].toInt();
+                        QString subgoalSetTitle = QString("Subgoal%1").arg(subgoalIndex);
+                        QJsonObject subgoalTitles = jsonObj["subgoalsTitles"].toObject();
+
+                        QJsonObject subgoal1 = subgoalTitles[subgoalSetTitle].toObject();
+                        subgoal1["marked"] = true;
+                        subgoalTitles[subgoalSetTitle] = subgoal1;
+                        jsonObj["subgoalsTitles"] = subgoalTitles;
+
+                        file.resize(0);
+                        file.write(QJsonDocument(jsonObj).toJson());
+                        file.close();
+                    }
+
                 });
 
 
