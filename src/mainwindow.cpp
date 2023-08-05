@@ -617,206 +617,13 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
             QVBoxLayout* subgoalsContainerLayout = new QVBoxLayout(subgoalsContainerWidget);
             subgoalsContainerLayout->setSpacing(10);
             subgoalsContainerLayout->setContentsMargins(0, 0, 0, 0);
-            subgoalsScrollArea->setWidget(subgoalsContainerWidget);
+            subgoalsScrollArea->setWidget(subgoalsContainerWidget);;
+
+            int subgoalIndex = 1;
+
+            connect(addSubgoalButton, &QPushButton::clicked, [=]() {addSubgoal(subgoalIndex, goalCounter,folderName,subgoalsContainerLayout, goalsWidget );});
 
             goalWidgetLayout->addWidget(subgoalsScrollArea);
-
-            QObject::connect(addSubgoalButton, &QPushButton::clicked, [=]() mutable {
-                QHBoxLayout* subgoalLayout = new QHBoxLayout();
-
-                QLabel* subgoalLabel = new QLabel("Subgoal");
-                subgoalLabel->setStyleSheet("color:white; font-size: 14px;");
-                subgoalLayout->addWidget(subgoalLabel);
-
-                QPushButton* markSubgoalButton = new QPushButton();
-                markSubgoalButton->setFixedSize(24, 24);
-                markSubgoalButton->setIcon(QIcon(":/imgs/doneIcon.png"));
-                markSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
-                subgoalLayout->addWidget(markSubgoalButton);
-
-                QPushButton* editSubgoalButton = new QPushButton();
-                editSubgoalButton->setIcon(QIcon(":/imgs/modifyIcon.png"));
-                editSubgoalButton->setFixedSize(24, 24);
-                editSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
-                subgoalLayout->addWidget(editSubgoalButton);
-
-                QPushButton* deleteSubgoalButton = new QPushButton();
-                deleteSubgoalButton->setFixedSize(24, 24);
-                deleteSubgoalButton->setIcon(QIcon(":/imgs/deleteIcon.png"));
-                deleteSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
-                subgoalLayout->addWidget(deleteSubgoalButton);
-
-                int subgoalIndex;
-
-                QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
-                QFile file(fileName);
-                if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
-                    QByteArray data = file.readAll();
-                    QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
-                    QJsonObject jsonObj = jsonDoc.object();
-                    jsonObj["subgoals"] = jsonObj["subgoals"].toInt() + 1;
-
-                    subgoalIndex = jsonObj["subgoals"].toInt();
-
-                    QJsonObject subgoalTitles = jsonObj["subgoalsTitles"].toObject();
-                    QJsonObject subgoalDefault;
-                    subgoalDefault.insert("marked", false);
-                    subgoalDefault.insert("title", "Subgoal");
-                    QString subgoalTitle = QString("Subgoal%1").arg(jsonObj["subgoals"].toInt());
-                    subgoalTitles.insert(subgoalTitle,subgoalDefault);
-                    jsonObj["subgoalsTitles"] = subgoalTitles;
-
-                    file.resize(0);
-                    file.write(QJsonDocument(jsonObj).toJson());
-                    file.close();
-                }
-
-                QObject::connect(markSubgoalButton, &QPushButton::clicked, [=]() mutable {
-                    QFont font = subgoalLabel->font();
-                    bool isStrikedOut = font.strikeOut();
-                    font.setStrikeOut(!isStrikedOut);
-                    subgoalLabel->setFont(font);
-
-                    QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
-                    QFile file(fileName);
-                    if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
-                        QByteArray data = file.readAll();
-                        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
-                        QJsonObject jsonObj = jsonDoc.object();
-                        subgoalIndex = jsonObj["subgoals"].toInt();
-                        QString subgoalSetTitle = QString("Subgoal%1").arg(subgoalIndex);
-                        QJsonObject subgoalTitles = jsonObj["subgoalsTitles"].toObject();
-
-                        QJsonObject subgoal1 = subgoalTitles[subgoalSetTitle].toObject();
-                        if(subgoal1["marked"] == false)
-                            subgoal1["marked"] = true;
-                        else
-                            subgoal1["marked"] = false;
-
-                        subgoalTitles[subgoalSetTitle] = subgoal1;
-                        jsonObj["subgoalsTitles"] = subgoalTitles;
-
-                        file.resize(0);
-                        file.write(QJsonDocument(jsonObj).toJson());
-                        file.close();
-                    }
-
-                });
-
-
-                QObject::connect(editSubgoalButton, &QPushButton::clicked, [=]() mutable {
-                    QString currentText = subgoalLabel->text();
-
-                    QDialog inputDialog(goalsWidget);
-                    inputDialog.setWindowTitle("Edit Subgoal");
-
-                    QLabel* label = new QLabel("Enter new text:", &inputDialog);
-
-                    QLineEdit* lineEdit = new QLineEdit(&inputDialog);
-                    lineEdit->setObjectName("newTextEdit");
-
-                    QPushButton* okButton = new QPushButton("OK", &inputDialog);
-                    okButton->setObjectName("okButton");
-                    connect(okButton, &QPushButton::clicked, &inputDialog, &QDialog::accept);
-
-                    QPushButton* cancelButton = new QPushButton("Cancel", &inputDialog);
-                    cancelButton->setObjectName("cancelButton");
-                    connect(cancelButton, &QPushButton::clicked, &inputDialog, &QDialog::reject);
-
-                    QVBoxLayout* layout = new QVBoxLayout(&inputDialog);
-                    layout->addWidget(label);
-                    layout->addWidget(lineEdit);
-
-                    QHBoxLayout* buttonLayout = new QHBoxLayout;
-                    buttonLayout->addWidget(okButton);
-                    buttonLayout->addWidget(cancelButton);
-                    layout->addLayout(buttonLayout);
-
-                    inputDialog.setStyleSheet("QDialog {"
-                                                  "background-color: #071426;"
-                                                  "border: transparent;"
-                                              "}"
-                                              "QLabel {"
-                                                  "color: white;"
-                                              "}"
-                                              "QLineEdit#newTextEdit {"
-                                                  "background-color: #071426;"
-                                                  "color: white;"
-                                                  "border: 1px solid white;"
-                                              "}"
-                                              "QPushButton#okButton {"
-                                                  "background-color: #009ace;"
-                                                  "color: white;"
-                                                  "border: none;"
-                                              "}"
-                                              "QPushButton#okButton:hover {"
-                                                  "background-color: #1C82E7;"
-                                              "}"
-                                              "QPushButton#cancelButton {"
-                                                  "background-color: #009ace;"
-                                                  "color: white;"
-                                                  "border: none;"
-                                              "}"
-                                              "QPushButton#cancelButton:hover {"
-                                                  "background-color: #1C82E7;"
-                                              "}"
-                                              "QPushButton:pressed {"
-                                                  "background-color: #1669C6;"
-                                              "}");
-
-                    if (inputDialog.exec() == QDialog::Accepted) {
-                        QString editText = lineEdit->text();
-                        if (!editText.isEmpty()) {
-                            subgoalLabel->setText(editText);
-                            QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
-                            QFile file(fileName);
-                            if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
-                                QByteArray data = file.readAll();
-                                QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
-                                QJsonObject jsonObj = jsonDoc.object();
-                                subgoalIndex = jsonObj["subgoals"].toInt();
-                                QString subgoalSetTitle = QString("Subgoal%1").arg(subgoalIndex);
-                                QJsonObject subgoalTitles = jsonObj["subgoalsTitles"].toObject();
-
-                                QJsonObject subgoal1 = subgoalTitles[subgoalSetTitle].toObject();
-                                subgoal1["title"] = editText;
-                                subgoalTitles[subgoalSetTitle] = subgoal1;
-                                jsonObj["subgoalsTitles"] = subgoalTitles;
-
-                                file.resize(0);
-                                file.write(QJsonDocument(jsonObj).toJson());
-                                file.close();
-                            }
-                        }
-                    }
-                });
-
-
-                QObject::connect(deleteSubgoalButton, &QPushButton::clicked, [=]() mutable {
-
-                    QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
-                    QFile file(fileName);
-                    if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
-                        QByteArray data = file.readAll();
-                        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
-                        QJsonObject jsonObj = jsonDoc.object();
-                        jsonObj["subgoals"] = jsonObj["subgoals"].toInt() - 1;
-                        file.resize(0);
-                        file.write(QJsonDocument(jsonObj).toJson());
-                        file.close();
-                    }
-
-
-                    deleteSubgoalButton->deleteLater();
-                    markSubgoalButton->deleteLater();
-                    editSubgoalButton->deleteLater();
-                    subgoalLabel->deleteLater();
-                    subgoalLayout->deleteLater();
-                });
-
-                subgoalsContainerLayout->addLayout(subgoalLayout);
-            });
-
             goalsContainerLayout->insertWidget(goalsContainerLayout->count() / 2, goalWidget);
             AspectRatioWidget* goalWidgetAspectRatioWidget = new AspectRatioWidget(goalWidget, 12, 8, goalsWidget);
             goalsContainerLayout->insertWidget(goalsContainerLayout->count() / 2, goalWidgetAspectRatioWidget);
@@ -858,5 +665,194 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
 
 }
 
+void MainWindow::addSubgoal(int subgoalIndex, int goalCounter,QString folderName,QVBoxLayout* subgoalsContainerLayout, QWidget* goalsWidget ){
+        QHBoxLayout* subgoalLayout = new QHBoxLayout();
 
+        QLabel* subgoalLabel = new QLabel("Subgoal");
+        subgoalLabel->setStyleSheet("color:white; font-size: 14px;");
+        subgoalLayout->addWidget(subgoalLabel);
+
+        QPushButton* markSubgoalButton = new QPushButton();
+        markSubgoalButton->setFixedSize(24, 24);
+        markSubgoalButton->setIcon(QIcon(":/imgs/doneIcon.png"));
+        markSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+        subgoalLayout->addWidget(markSubgoalButton);
+
+        QPushButton* editSubgoalButton = new QPushButton();
+        editSubgoalButton->setIcon(QIcon(":/imgs/modifyIcon.png"));
+        editSubgoalButton->setFixedSize(24, 24);
+        editSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+        subgoalLayout->addWidget(editSubgoalButton);
+
+        QPushButton* deleteSubgoalButton = new QPushButton();
+        deleteSubgoalButton->setFixedSize(24, 24);
+        deleteSubgoalButton->setIcon(QIcon(":/imgs/deleteIcon.png"));
+        deleteSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+        subgoalLayout->addWidget(deleteSubgoalButton);
+
+        QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
+        QFile file(fileName);
+        if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
+            QByteArray data = file.readAll();
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+            QJsonObject jsonObj = jsonDoc.object();
+            jsonObj["subgoals"] = jsonObj["subgoals"].toInt() + 1;
+            subgoalIndex = jsonObj["subgoals"].toInt();
+
+            QJsonObject subgoalTitles = jsonObj["subgoalsTitles"].toObject();
+            QJsonObject subgoalDefault;
+            subgoalDefault.insert("marked", false);
+            subgoalDefault.insert("title", "Subgoal");
+            QString subgoalTitle = QString("Subgoal%1").arg(jsonObj["subgoals"].toInt());
+            subgoalTitles.insert(subgoalTitle,subgoalDefault);
+            jsonObj["subgoalsTitles"] = subgoalTitles;
+
+            file.resize(0);
+            file.write(QJsonDocument(jsonObj).toJson());
+            file.close();
+        }
+
+        QObject::connect(markSubgoalButton, &QPushButton::clicked, [=]() mutable {
+            QFont font = subgoalLabel->font();
+            bool isStrikedOut = font.strikeOut();
+            font.setStrikeOut(!isStrikedOut);
+            subgoalLabel->setFont(font);
+
+            QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
+            QFile file(fileName);
+            if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+                QByteArray data = file.readAll();
+                QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+                QJsonObject jsonObj = jsonDoc.object();
+                QString subgoalSetTitle = QString("Subgoal%1").arg(subgoalIndex);
+                QJsonObject subgoalTitles = jsonObj["subgoalsTitles"].toObject();
+
+                QJsonObject subgoal1 = subgoalTitles[subgoalSetTitle].toObject();
+                if(subgoal1["marked"] == false)
+                    subgoal1["marked"] = true;
+                else
+                    subgoal1["marked"] = false;
+
+                subgoalTitles[subgoalSetTitle] = subgoal1;
+                jsonObj["subgoalsTitles"] = subgoalTitles;
+
+                file.resize(0);
+                file.write(QJsonDocument(jsonObj).toJson());
+                file.close();
+            }
+
+        });
+
+
+        QObject::connect(editSubgoalButton, &QPushButton::clicked, [=]() mutable {
+            QString currentText = subgoalLabel->text();
+
+            QDialog inputDialog(goalsWidget);
+            inputDialog.setWindowTitle("Edit Subgoal");
+
+            QLabel* label = new QLabel("Enter new text:", &inputDialog);
+
+            QLineEdit* lineEdit = new QLineEdit(&inputDialog);
+            lineEdit->setObjectName("newTextEdit");
+
+            QPushButton* okButton = new QPushButton("OK", &inputDialog);
+            okButton->setObjectName("okButton");
+            connect(okButton, &QPushButton::clicked, &inputDialog, &QDialog::accept);
+
+            QPushButton* cancelButton = new QPushButton("Cancel", &inputDialog);
+            cancelButton->setObjectName("cancelButton");
+            connect(cancelButton, &QPushButton::clicked, &inputDialog, &QDialog::reject);
+
+            QVBoxLayout* layout = new QVBoxLayout(&inputDialog);
+            layout->addWidget(label);
+            layout->addWidget(lineEdit);
+
+            QHBoxLayout* buttonLayout = new QHBoxLayout;
+            buttonLayout->addWidget(okButton);
+            buttonLayout->addWidget(cancelButton);
+            layout->addLayout(buttonLayout);
+
+            inputDialog.setStyleSheet("QDialog {"
+                                          "background-color: #071426;"
+                                          "border: transparent;"
+                                      "}"
+                                      "QLabel {"
+                                          "color: white;"
+                                      "}"
+                                      "QLineEdit#newTextEdit {"
+                                          "background-color: #071426;"
+                                          "color: white;"
+                                          "border: 1px solid white;"
+                                      "}"
+                                      "QPushButton#okButton {"
+                                          "background-color: #009ace;"
+                                          "color: white;"
+                                          "border: none;"
+                                      "}"
+                                      "QPushButton#okButton:hover {"
+                                          "background-color: #1C82E7;"
+                                      "}"
+                                      "QPushButton#cancelButton {"
+                                          "background-color: #009ace;"
+                                          "color: white;"
+                                          "border: none;"
+                                      "}"
+                                      "QPushButton#cancelButton:hover {"
+                                          "background-color: #1C82E7;"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                          "background-color: #1669C6;"
+                                      "}");
+
+            if (inputDialog.exec() == QDialog::Accepted) {
+                QString editText = lineEdit->text();
+                if (!editText.isEmpty()) {
+                    subgoalLabel->setText(editText);
+                    QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
+                    QFile file(fileName);
+                    if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+                        QByteArray data = file.readAll();
+                        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+                        QJsonObject jsonObj = jsonDoc.object();
+                        QString subgoalSetTitle = QString("Subgoal%1").arg(subgoalIndex);
+                        QJsonObject subgoalTitles = jsonObj["subgoalsTitles"].toObject();
+
+                        QJsonObject subgoal1 = subgoalTitles[subgoalSetTitle].toObject();
+                        subgoal1["title"] = editText;
+                        subgoalTitles[subgoalSetTitle] = subgoal1;
+                        jsonObj["subgoalsTitles"] = subgoalTitles;
+
+                        file.resize(0);
+                        file.write(QJsonDocument(jsonObj).toJson());
+                        file.close();
+                    }
+                }
+            }
+        });
+
+
+        QObject::connect(deleteSubgoalButton, &QPushButton::clicked, [=]() mutable {
+
+            QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
+            QFile file(fileName);
+            if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
+                QByteArray data = file.readAll();
+                QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+                QJsonObject jsonObj = jsonDoc.object();
+                jsonObj["subgoals"] = jsonObj["subgoals"].toInt() - 1;
+                file.resize(0);
+                file.write(QJsonDocument(jsonObj).toJson());
+                file.close();
+            }
+
+
+            deleteSubgoalButton->deleteLater();
+            markSubgoalButton->deleteLater();
+            editSubgoalButton->deleteLater();
+            subgoalLabel->deleteLater();
+            subgoalLayout->deleteLater();
+        });
+
+        subgoalsContainerLayout->addLayout(subgoalLayout);
+}
 
