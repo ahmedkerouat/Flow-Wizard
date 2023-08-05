@@ -688,7 +688,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                         QJsonObject subgoalTitles = jsonObj["subgoalsTitles"].toObject();
 
                         QJsonObject subgoal1 = subgoalTitles[subgoalSetTitle].toObject();
-                        if(subgoal1["marked"] == "false")
+                        if(subgoal1["marked"] == false)
                             subgoal1["marked"] = true;
                         else
                             subgoal1["marked"] = false;
