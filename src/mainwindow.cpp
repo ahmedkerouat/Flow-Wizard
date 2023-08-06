@@ -399,6 +399,7 @@ void MainWindow::on_inspirationButton_clicked(QPushButton* inspirationButton,QWi
 void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushButton* goalsButton, QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget)
 {
     resetWindow(inspirationButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
+    loadGoals();
 
     QWidget* goalsWidget = new QWidget(centralWidget);
     goalsWidget->setObjectName("goalsWidget");
@@ -856,3 +857,15 @@ void MainWindow::addSubgoal(int subgoalIndex, int goalCounter,QString folderName
         subgoalsContainerLayout->addLayout(subgoalLayout);
 }
 
+void MainWindow::loadGoals(){
+    for (int i = 1; i <= 3; i++){
+
+        QString folderName = "savedGoals";
+        QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(i);
+        QFile file(fileName);
+
+        if (file.exists()) {
+              qDebug() << i << "File exists!";
+          }
+    }
+}
