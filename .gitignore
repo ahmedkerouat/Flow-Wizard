@@ -1,2 +1,3 @@
 
 src/CMakeLists.txt.user
+*.user
