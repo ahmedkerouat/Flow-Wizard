@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QLineEdit>
 #include <aspectratiowidget.h>
 
 QT_BEGIN_NAMESPACE
@@ -24,9 +25,8 @@ private slots:
     void resetWindow(QPushButton* inspirationButton,QPushButton *notesButton, QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QLabel *helloLabel, QGridLayout *gridLayout, AspectRatioWidget *aspectRatioWidget);
     void on_inspirationButton_clicked(QPushButton* inspirationButton,QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget);
     void on_GoalsButton_clicked(QPushButton* inspirationButton,QPushButton* goalsButton,QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget);
-    void addGoal(int goalCounter, int totalGoalCounter, QWidget* goalsWidget, AspectRatioWidget* goalsAspectRatioWidget, QHBoxLayout* goalsContainerLayout);
     void addSubgoal(int subgoalIndex,int goalCounter,QString folderName,QVBoxLayout* subgoalsContainerLayout, QWidget* goalsWidget);
-    void loadGoals(QPushButton* addGoalButton, int &goalCounter);
+    void loadGoals(QPushButton* addGoalButton);
 private:
     Ui::MainWindow *ui;
 };
