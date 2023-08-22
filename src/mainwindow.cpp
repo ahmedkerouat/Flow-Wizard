@@ -399,7 +399,6 @@ void MainWindow::on_inspirationButton_clicked(QPushButton* inspirationButton,QWi
 void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushButton* goalsButton, QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget)
 {
     resetWindow(inspirationButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
-    loadGoals();
 
     QWidget* goalsWidget = new QWidget(centralWidget);
     goalsWidget->setObjectName("goalsWidget");
@@ -430,6 +429,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
     QObject::connect(addGoalButton, &QPushButton::clicked,[=]() mutable {
         if (goalCounter < maxGoals) {
             goalCounter++;
+            int goalCounterCopy = goalCounter;
             totalGoalCounter++;
 
             QString folderName = "savedGoals";
@@ -488,8 +488,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
             addSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
             goalHeaderLayout->addWidget(addSubgoalButton);
 
-            QObject::connect(deleteGoalButton, &QPushButton::clicked, [goalWidget, &goalCounter]() mutable {
-                goalCounter--;
+            QObject::connect(deleteGoalButton, &QPushButton::clicked, [goalCounterCopy, goalWidget, &goalCounter]() mutable {
                 if (goalWidget && goalWidget->parentWidget()) {
                     QMessageBox msgBox;
                     msgBox.setWindowTitle("Confirmation");
@@ -518,6 +517,23 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
 
                     if (msgBox.exec() == QMessageBox::Yes) {
                         goalWidget->deleteLater();
+                        QString changeFile = QString("%1/goal_%2.json").arg("savedGoals").arg(goalCounterCopy+1);
+                        QString currentFile =QString("%1/goal_%2.json").arg("savedGoals").arg(goalCounterCopy);
+
+                        if(goalCounterCopy >= goalCounter){
+                            QString currentFile =QString("%1/goal_%2.json").arg("savedGoals").arg(goalCounter);
+                             QFile::remove(currentFile);}
+
+                        QFile::remove(currentFile);
+                        if(goalCounterCopy < goalCounter){
+                            QFile::rename(changeFile, currentFile);
+                            if(goalCounterCopy == 1 && goalCounter == 3)
+                                QFile::rename("savedGoals/goal_3.json", "savedGoals/goal_2.json");
+
+                        }
+                        goalCounter--;
+                        goalCounterCopy--;
+
                     }
                 }
             });
@@ -663,6 +679,8 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
     mainGoalsLayout->addLayout(goalsContainerLayout);
 
     goalsWidget->setLayout(mainGoalsLayout);
+
+    loadGoals(addGoalButton);
 
 }
 
@@ -857,7 +875,7 @@ void MainWindow::addSubgoal(int subgoalIndex, int goalCounter,QString folderName
         subgoalsContainerLayout->addLayout(subgoalLayout);
 }
 
-void MainWindow::loadGoals(){
+void MainWindow::loadGoals(QPushButton* addGoalButton){
     for (int i = 1; i <= 3; i++){
 
         QString folderName = "savedGoals";
@@ -866,6 +884,7 @@ void MainWindow::loadGoals(){
 
         if (file.exists()) {
               qDebug() << i << "File exists!";
+              addGoalButton->click();
           }
     }
 }
