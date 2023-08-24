@@ -437,8 +437,31 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
             folderDir.mkpath(folderName);
             QJsonObject jsonGoal;
             QJsonObject jsonSubgoals;
+            QString goalTitle = QString("Goal %1").arg(goalCounter);
+            QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
+            QFile file(fileName);
 
-            jsonGoal.insert("title",goalCounter);
+            QScrollArea* subgoalsScrollArea = new QScrollArea();
+            subgoalsScrollArea->setStyleSheet("QScrollArea { background-color: transparent; border: none; width:10px;margin: 0px 0px 0px 0px;}"
+                                              "QScrollBar::add-page:vertical { background-color: #071426; }"
+                                              "QScrollBar::sub-page:vertical { background-color: #071426; }"
+                                              "QScrollBar::handle:vertical {"
+                                                  "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+                                                  "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130), stop:1 rgb(32, 47, 130));"
+                                                  "    min-height: 0px;"
+                                                  "}");
+            subgoalsScrollArea->setWidgetResizable(true);
+            subgoalsScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+            QWidget* subgoalsContainerWidget = new QWidget();
+            QVBoxLayout* subgoalsContainerLayout = new QVBoxLayout(subgoalsContainerWidget);
+            subgoalsContainerLayout->setSpacing(10);
+            subgoalsContainerLayout->setContentsMargins(0, 0, 0, 0);
+            subgoalsScrollArea->setWidget(subgoalsContainerWidget);;
+
+
+          if(!file.exists()){
+            jsonGoal.insert("title",goalTitle);
             jsonGoal.insert("number",goalCounter);
             jsonGoal.insert("subgoals",0);
             jsonGoal.insert("subgoalsTitles",jsonSubgoals);
@@ -446,14 +469,30 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
             QJsonDocument document;
                     document.setObject( jsonGoal );
                     QByteArray bytes = document.toJson( QJsonDocument::Indented );
-                    QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
-                    QFile file(fileName);
                     if( file.open( QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate ) )
                     {
                         QTextStream iStream( &file );
                         iStream << bytes;
                         file.close();
-                    }
+                    }}
+
+          else{
+              if( file.open( QIODevice::ReadOnly | QIODevice::Text | QIODevice::Truncate ) )
+              {
+              QJsonObject jsonObj = QJsonDocument::fromJson(file.readAll()).object();
+              int numSubgoals = jsonObj["subgoals"].toInt();
+              QJsonObject subgoalTitlesObj = jsonObj["subgoalsTitles"].toObject();
+
+              int iteration = 0;
+              for (auto subgoalIt = subgoalTitlesObj.begin(); subgoalIt != subgoalTitlesObj.end(); ++subgoalIt){
+                  iteration++;
+                  QString subgoalKey = subgoalIt.key();
+                  QJsonObject subgoalObj = subgoalTitlesObj[subgoalKey].toObject();
+                  addSubgoal(iteration, goalCounter,folderName,subgoalsContainerLayout, goalsWidget, subgoalObj["title"].toString(), subgoalObj["marked"].toBool());
+              }
+              }
+              file.close();
+          }
 
             QWidget* goalWidget = new QWidget(goalsWidget);
             goalWidget->setObjectName("goalWidget");
@@ -618,27 +657,19 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                 }
             }});
 
-            QScrollArea* subgoalsScrollArea = new QScrollArea();
-            subgoalsScrollArea->setStyleSheet("QScrollArea { background-color: transparent; border: none; width:10px;margin: 0px 0px 0px 0px;}"
-                                              "QScrollBar::add-page:vertical { background-color: #071426; }"
-                                              "QScrollBar::sub-page:vertical { background-color: #071426; }"
-                                              "QScrollBar::handle:vertical {"
-                                                  "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
-                                                  "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130), stop:1 rgb(32, 47, 130));"
-                                                  "    min-height: 0px;"
-                                                  "}");
-            subgoalsScrollArea->setWidgetResizable(true);
-            subgoalsScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+            if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+                QByteArray data = file.readAll();
+                QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+                QJsonObject jsonObj = jsonDoc.object();
+                if(jsonObj["title"].toString() != goalNameLineEdit->text()){
+                    goalNameLineEdit->setText(jsonObj["title"].toString());
+                }
+                file.resize(0);
+                file.write(QJsonDocument(jsonObj).toJson());
+                file.close();
+        }
 
-            QWidget* subgoalsContainerWidget = new QWidget();
-            QVBoxLayout* subgoalsContainerLayout = new QVBoxLayout(subgoalsContainerWidget);
-            subgoalsContainerLayout->setSpacing(10);
-            subgoalsContainerLayout->setContentsMargins(0, 0, 0, 0);
-            subgoalsScrollArea->setWidget(subgoalsContainerWidget);;
-
-            int subgoalIndex = 1;
-
-            connect(addSubgoalButton, &QPushButton::clicked, [=]() {addSubgoal(subgoalIndex, goalCounter,folderName,subgoalsContainerLayout, goalsWidget );});
+            connect(addSubgoalButton, &QPushButton::clicked, [=]() {addSubgoal(1, goalCounter,folderName,subgoalsContainerLayout, goalsWidget, "None", false);});
 
             goalWidgetLayout->addWidget(subgoalsScrollArea);
             goalsContainerLayout->insertWidget(goalsContainerLayout->count() / 2, goalWidget);
@@ -684,7 +715,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
 
 }
 
-void MainWindow::addSubgoal(int subgoalIndex, int goalCounter,QString folderName,QVBoxLayout* subgoalsContainerLayout, QWidget* goalsWidget ){
+void MainWindow::addSubgoal(int subgoalIndex, int goalCounter,QString folderName,QVBoxLayout* subgoalsContainerLayout, QWidget* goalsWidget, QString subgoalGivenTitle, bool subgoalMarked ){
         QHBoxLayout* subgoalLayout = new QHBoxLayout();
 
         QLabel* subgoalLabel = new QLabel("Subgoal");
@@ -709,14 +740,24 @@ void MainWindow::addSubgoal(int subgoalIndex, int goalCounter,QString folderName
         deleteSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
         subgoalLayout->addWidget(deleteSubgoalButton);
 
+        if(subgoalGivenTitle != "None")
+            subgoalLabel->setText(subgoalGivenTitle);
+        if(subgoalMarked){
+            QFont font = subgoalLabel->font();
+            font.setStrikeOut(1);
+            subgoalLabel->setFont(font);
+        }
+
+        if(subgoalGivenTitle == "None"){
+
         QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
         QFile file(fileName);
         if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
+
             QByteArray data = file.readAll();
             QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
             QJsonObject jsonObj = jsonDoc.object();
             jsonObj["subgoals"] = jsonObj["subgoals"].toInt() + 1;
-            subgoalIndex = jsonObj["subgoals"].toInt();
 
             QJsonObject subgoalTitles = jsonObj["subgoalsTitles"].toObject();
             QJsonObject subgoalDefault;
@@ -725,10 +766,12 @@ void MainWindow::addSubgoal(int subgoalIndex, int goalCounter,QString folderName
             QString subgoalTitle = QString("Subgoal%1").arg(jsonObj["subgoals"].toInt());
             subgoalTitles.insert(subgoalTitle,subgoalDefault);
             jsonObj["subgoalsTitles"] = subgoalTitles;
+            subgoalIndex = jsonObj["subgoals"].toInt();
 
             file.resize(0);
             file.write(QJsonDocument(jsonObj).toJson());
             file.close();
+        }
         }
 
         QObject::connect(markSubgoalButton, &QPushButton::clicked, [=]() mutable {
@@ -859,6 +902,10 @@ void MainWindow::addSubgoal(int subgoalIndex, int goalCounter,QString folderName
                 QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
                 QJsonObject jsonObj = jsonDoc.object();
                 jsonObj["subgoals"] = jsonObj["subgoals"].toInt() - 1;
+                QString subgoalSetTitle = QString("Subgoal%1").arg(subgoalIndex);
+                QJsonObject subgoalsObject = jsonObj["subgoalsTitles"].toObject();
+                subgoalsObject.remove(subgoalSetTitle);
+                jsonObj["subgoalsTitles"] = subgoalsObject;
                 file.resize(0);
                 file.write(QJsonDocument(jsonObj).toJson());
                 file.close();
@@ -872,6 +919,7 @@ void MainWindow::addSubgoal(int subgoalIndex, int goalCounter,QString folderName
             subgoalLayout->deleteLater();
         });
 
+
         subgoalsContainerLayout->addLayout(subgoalLayout);
 }
 
@@ -883,8 +931,8 @@ void MainWindow::loadGoals(QPushButton* addGoalButton){
         QFile file(fileName);
 
         if (file.exists()) {
-              qDebug() << i << "File exists!";
               addGoalButton->click();
+
           }
     }
 }
