@@ -106,9 +106,9 @@ MainWindow::MainWindow(QWidget *parent)
     inspirationButton->setStyleSheet(buttonStyle);
     notesButton->setStyleSheet(buttonStyle);
 
-    connect(notesButton, &QPushButton::clicked, [=]() { on_notesButton_clicked(inspirationButton,notesButton,centralWidget, mainLayout, buttonLayout, mainWidget, helloLabel, gridLayout, aspectRatioWidget); });
-    connect(homeButton, &QPushButton::clicked, [=]() { resetWindow(inspirationButton,notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget); });
-    connect(inspirationButton, &QPushButton::clicked,[=](){on_inspirationButton_clicked(inspirationButton,centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
+    connect(notesButton, &QPushButton::clicked, [=]() { on_notesButton_clicked(inspirationButton,goalsButton, notesButton,centralWidget, mainLayout, buttonLayout, mainWidget, helloLabel, gridLayout, aspectRatioWidget); });
+    connect(homeButton, &QPushButton::clicked, [=]() { resetWindow(inspirationButton,goalsButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget); });
+    connect(inspirationButton, &QPushButton::clicked,[=](){on_inspirationButton_clicked(inspirationButton,goalsButton, centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
     connect(goalsButton, &QPushButton::clicked,[=](){on_GoalsButton_clicked(inspirationButton,goalsButton,centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
 
 
@@ -128,7 +128,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::resetWindow(QPushButton* inspirationButton,QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget)
+void MainWindow::resetWindow(QPushButton* inspirationButton, QPushButton* goalsButton, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget)
 {
     helloLabel->setVisible(false);
     if (centralWidget()->findChild<QWidget*>("notesWidget"))
@@ -153,11 +153,17 @@ void MainWindow::resetWindow(QPushButton* inspirationButton,QPushButton* notesBu
             inspirationButton->setEnabled(true);
         }
     }
+    if (centralWidget()->findChild<QWidget*>("goalsWidget")){
+        if (goalsButton)
+        {
+            goalsButton->setEnabled(true);
+        }
+    }
 }
 
-void MainWindow::on_notesButton_clicked(QPushButton* inspirationButton,QPushButton *notesButton, QWidget *centralWidget, QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget, QLabel *helloLabel, QGridLayout *gridLayout, AspectRatioWidget *aspectRatioWidget)
+void MainWindow::on_notesButton_clicked(QPushButton* inspirationButton,QPushButton* goalsButton,QPushButton *notesButton, QWidget *centralWidget, QVBoxLayout *mainLayout, QHBoxLayout *buttonLayout, QWidget *mainWidget, QLabel *helloLabel, QGridLayout *gridLayout, AspectRatioWidget *aspectRatioWidget)
 {
-    resetWindow(inspirationButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
+    resetWindow(inspirationButton,goalsButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
 
     if (notesButton)
     {
@@ -352,9 +358,9 @@ void MainWindow::on_notesButton_clicked(QPushButton* inspirationButton,QPushButt
     helloLabel->setVisible(false);
 }
 
-void MainWindow::on_inspirationButton_clicked(QPushButton* inspirationButton,QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget)
+void MainWindow::on_inspirationButton_clicked(QPushButton* inspirationButton,QPushButton* goalsButton,QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget)
 {
-    resetWindow(inspirationButton,notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
+    resetWindow(inspirationButton,goalsButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
 
     if (inspirationButton)
     {
@@ -398,7 +404,12 @@ void MainWindow::on_inspirationButton_clicked(QPushButton* inspirationButton,QWi
 
 void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushButton* goalsButton, QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget)
 {
-    resetWindow(inspirationButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
+    resetWindow(inspirationButton,goalsButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
+
+    if (goalsButton)
+    {
+        goalsButton->setEnabled(false);
+    }
 
     QWidget* goalsWidget = new QWidget(centralWidget);
     goalsWidget->setObjectName("goalsWidget");
