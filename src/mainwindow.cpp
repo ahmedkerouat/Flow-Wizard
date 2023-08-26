@@ -975,7 +975,41 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     addHabitButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 8px 16px; border-radius: 4px;");
     habitsLayout->addWidget(addHabitButton, 0, Qt::AlignBottom | Qt::AlignLeft);
 
+    connect(addHabitButton, &QPushButton::clicked, [=](){addHabit(habitsWidget, habitsLayout);});
+}
 
+void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
 
+    QWidget* habitWidget = new QWidget(habitsWidget);
+    habitWidget->setObjectName("habitWidget");
+    habitWidget->setStyleSheet("background-color: green;");
+
+    qDebug() << "Hola!";
+
+    QHBoxLayout* habitWidgetLayout = new QHBoxLayout(habitWidget);
+
+    QVBoxLayout* habitHeaderLayout = new QVBoxLayout();
+    habitWidgetLayout->addLayout(habitHeaderLayout);
+
+    QLineEdit* habitNameLineEdit = new QLineEdit;
+    habitNameLineEdit->setText("Goal");
+    habitNameLineEdit->setStyleSheet("background-color: transparent; border: none; color: white; font-size: 16px; padding: 5px;");
+    habitNameLineEdit->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    habitNameLineEdit->setReadOnly(true);
+    habitHeaderLayout->addWidget(habitNameLineEdit);
+
+    QPushButton* deleteGoalButton = new QPushButton();
+    deleteGoalButton->setFixedSize(24, 24);
+    deleteGoalButton->setIcon(QIcon(":/imgs/deleteIcon.png"));
+    deleteGoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+    habitHeaderLayout->addWidget(deleteGoalButton);
+
+    QPushButton* editGoalNameButton = new QPushButton();
+    editGoalNameButton->setFixedSize(24, 24);
+    editGoalNameButton->setIcon(QIcon(":/imgs/modifyIcon.png"));
+    editGoalNameButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+    habitHeaderLayout->addWidget(editGoalNameButton);
+
+    habitsLayout->addWidget(habitWidget);
 
 }
