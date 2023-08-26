@@ -110,6 +110,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(homeButton, &QPushButton::clicked, [=]() { resetWindow(inspirationButton,goalsButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget); });
     connect(inspirationButton, &QPushButton::clicked,[=](){on_inspirationButton_clicked(inspirationButton,goalsButton, centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
     connect(goalsButton, &QPushButton::clicked,[=](){on_GoalsButton_clicked(inspirationButton,goalsButton,centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
+    connect(habitsButton, &QPushButton::clicked,[=](){on_habitsButton_clicked(inspirationButton,goalsButton,centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
 
 
     //add the layout to the grid layout
@@ -946,4 +947,35 @@ void MainWindow::loadGoals(QPushButton* addGoalButton){
 
           }
     }
+}
+
+void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushButton* goalsButton, QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget){
+
+    resetWindow(inspirationButton,goalsButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
+
+    QWidget* habitsWidget = new QWidget(centralWidget);
+    habitsWidget->setObjectName("habitsWidget");
+    habitsWidget->setMinimumSize(750, 500);
+    AspectRatioWidget* habitsAspectRatioWidget = new AspectRatioWidget(habitsWidget, 16, 9, centralWidget);
+    gridLayout->addWidget(habitsAspectRatioWidget, 1, 0, 5, 1);
+    habitsWidget->setStyleSheet("background-color:  red");
+    //habitsWidget->setStyleSheet("background-color: #071426");
+
+    QVBoxLayout* mainHabitsLayout = new QVBoxLayout(habitsWidget);
+    mainHabitsLayout->setAlignment(Qt::AlignTop);
+
+    QVBoxLayout* habitsLayout = new QVBoxLayout();
+    mainHabitsLayout->addLayout(habitsLayout);
+
+    QVBoxLayout* habitsContainerLayout = new QVBoxLayout();
+    habitsContainerLayout->setSpacing(10);
+    habitsContainerLayout->setContentsMargins(0, 0, 0, 0);
+
+    QPushButton* addHabitButton = new QPushButton("Add Habit");
+    addHabitButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 8px 16px; border-radius: 4px;");
+    habitsLayout->addWidget(addHabitButton, 0, Qt::AlignBottom | Qt::AlignLeft);
+
+
+
+
 }
