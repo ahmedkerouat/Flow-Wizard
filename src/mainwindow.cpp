@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //central widget and layout
     QWidget *centralWidget = new QWidget(this);
-    this->setMinimumSize(750,600);
+    this->setMinimumSize(850,620);
     QGridLayout *gridLayout = new QGridLayout(centralWidget);
     gridLayout->setSpacing(0);
     gridLayout->setContentsMargins(0, 0, 0, 0);
@@ -949,13 +949,13 @@ void MainWindow::loadGoals(QPushButton* addGoalButton){
     }
 }
 
-void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushButton* goalsButton, QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget){
+void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushButton* goalsButton, QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget) {
 
-    resetWindow(inspirationButton,goalsButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
+    resetWindow(inspirationButton, goalsButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
 
     QWidget* habitsWidget = new QWidget(centralWidget);
     habitsWidget->setObjectName("habitsWidget");
-    habitsWidget->setMinimumSize(750, 500);
+    habitsWidget->setMinimumSize(800, 500);
     AspectRatioWidget* habitsAspectRatioWidget = new AspectRatioWidget(habitsWidget, 16, 9, centralWidget);
     gridLayout->addWidget(habitsAspectRatioWidget, 1, 0, 5, 1);
     habitsWidget->setStyleSheet("background-color:  red");
@@ -964,27 +964,32 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     QVBoxLayout* mainHabitsLayout = new QVBoxLayout(habitsWidget);
     mainHabitsLayout->setAlignment(Qt::AlignTop);
 
-    QVBoxLayout* habitsLayout = new QVBoxLayout();
-    mainHabitsLayout->addLayout(habitsLayout);
+    QScrollArea* scrollArea = new QScrollArea(habitsWidget);
+    mainHabitsLayout->addWidget(scrollArea);
 
-    QVBoxLayout* habitsContainerLayout = new QVBoxLayout();
+    QWidget* habitsContainerWidget = new QWidget();
+    scrollArea->setWidget(habitsContainerWidget);
+    scrollArea->setWidgetResizable(true);
+
+    QVBoxLayout* habitsContainerLayout = new QVBoxLayout(habitsContainerWidget);
     habitsContainerLayout->setSpacing(10);
     habitsContainerLayout->setContentsMargins(0, 0, 0, 0);
 
     QPushButton* addHabitButton = new QPushButton("Add Habit");
     addHabitButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 8px 16px; border-radius: 4px;");
-    habitsLayout->addWidget(addHabitButton, 0, Qt::AlignBottom | Qt::AlignLeft);
+    mainHabitsLayout->addWidget(addHabitButton, 0, Qt::AlignBottom | Qt::AlignLeft);
 
-    connect(addHabitButton, &QPushButton::clicked, [=](){addHabit(habitsWidget, habitsLayout);});
+    connect(addHabitButton, &QPushButton::clicked, [=]() { addHabit(habitsWidget, habitsContainerLayout); });
+
 }
+
 
 void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
 
     QWidget* habitWidget = new QWidget(habitsWidget);
     habitWidget->setObjectName("habitWidget");
     habitWidget->setStyleSheet("background-color: green;");
-
-    qDebug() << "Hola!";
+    habitWidget->setMaximumHeight(200);
 
     QHBoxLayout* habitWidgetLayout = new QHBoxLayout(habitWidget);
 
@@ -992,23 +997,36 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
     habitWidgetLayout->addLayout(habitHeaderLayout);
 
     QLineEdit* habitNameLineEdit = new QLineEdit;
-    habitNameLineEdit->setText("Goal");
-    habitNameLineEdit->setStyleSheet("background-color: transparent; border: none; color: white; font-size: 16px; padding: 5px;");
+    habitNameLineEdit->setText("Habit");
+    habitNameLineEdit->setStyleSheet("background-color: transparent; border: none; color: white; font-size: 24px; padding: 5px;");
     habitNameLineEdit->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     habitNameLineEdit->setReadOnly(true);
     habitHeaderLayout->addWidget(habitNameLineEdit);
 
-    QPushButton* deleteGoalButton = new QPushButton();
-    deleteGoalButton->setFixedSize(24, 24);
-    deleteGoalButton->setIcon(QIcon(":/imgs/deleteIcon.png"));
-    deleteGoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
-    habitHeaderLayout->addWidget(deleteGoalButton);
+    QLineEdit* repetitionNameLineEdit = new QLineEdit;
+    repetitionNameLineEdit->setText("Repetition :");
+    repetitionNameLineEdit->setStyleSheet("background-color: transparent; border: none; color: white; font-size: 16px; padding: 5px;");
+    repetitionNameLineEdit->setAlignment(Qt::AlignHCenter | Qt::AlignBaseline);
+    repetitionNameLineEdit->setReadOnly(true);
+    habitHeaderLayout->addWidget(repetitionNameLineEdit);
+
+    QPushButton* doneHabitButton = new QPushButton();
+    doneHabitButton->setFixedSize(24, 24);
+    doneHabitButton->setIcon(QIcon(":/imgs/doneIcon.png"));
+    doneHabitButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+    habitHeaderLayout->addWidget(doneHabitButton);
 
     QPushButton* editGoalNameButton = new QPushButton();
     editGoalNameButton->setFixedSize(24, 24);
     editGoalNameButton->setIcon(QIcon(":/imgs/modifyIcon.png"));
     editGoalNameButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
     habitHeaderLayout->addWidget(editGoalNameButton);
+
+    QPushButton* deleteGoalButton = new QPushButton();
+    deleteGoalButton->setFixedSize(24, 24);
+    deleteGoalButton->setIcon(QIcon(":/imgs/deleteIcon.png"));
+    deleteGoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+    habitHeaderLayout->addWidget(deleteGoalButton);
 
     habitsLayout->addWidget(habitWidget);
 
