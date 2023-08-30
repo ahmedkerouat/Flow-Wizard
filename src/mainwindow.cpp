@@ -17,6 +17,9 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QFormLayout>
+#include <QDialogButtonBox>
+#include <QComboBox>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -1016,11 +1019,11 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
     doneHabitButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
     habitHeaderLayout->addWidget(doneHabitButton);
 
-    QPushButton* editHabitNameButton = new QPushButton();
-    editHabitNameButton->setFixedSize(24, 24);
-    editHabitNameButton->setIcon(QIcon(":/imgs/modifyIcon.png"));
-    editHabitNameButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
-    habitHeaderLayout->addWidget(editHabitNameButton);
+    QPushButton* editHabitButton = new QPushButton();
+    editHabitButton->setFixedSize(24, 24);
+    editHabitButton->setIcon(QIcon(":/imgs/modifyIcon.png"));
+    editHabitButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+    habitHeaderLayout->addWidget(editHabitButton);
 
     QPushButton* deleteHabitButton = new QPushButton();
     deleteHabitButton->setFixedSize(24, 24);
@@ -1057,6 +1060,50 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
           habitWidget->deleteLater();
       }
     });
+
+    QObject::connect(editHabitButton, &QPushButton::clicked, [=]() mutable {
+        QDialog dialog(this);
+        dialog.setWindowTitle("Edit Habit Settings");
+        dialog.setFixedSize(250, 150);
+        dialog.setModal(true);
+
+        QVBoxLayout mainLayout(&dialog);
+
+        QLabel titleLabel("Edit your habits settings");
+        titleLabel.setAlignment(Qt::AlignCenter);
+        titleLabel.setStyleSheet("font-size: 18px;");
+        mainLayout.addWidget(&titleLabel);
+
+        QFormLayout formLayout;
+        mainLayout.addLayout(&formLayout);
+
+        QLineEdit *habitNameLineEdit = new QLineEdit(&dialog);
+        habitNameLineEdit->setText("Habit");
+        formLayout.addRow("Habit name:", habitNameLineEdit);
+
+        QComboBox *comboBox = new QComboBox(&dialog);
+            comboBox->addItem("Hourly");
+            comboBox->addItem("Daily");
+            comboBox->addItem("Weekly");
+            comboBox->addItem("Monthly");
+            comboBox->addItem("Yearly");
+            comboBox->addItem("Custom");
+            formLayout.addRow("Habit repetition:", comboBox);
+
+        QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                                   Qt::Horizontal, &dialog);
+        mainLayout.addWidget(&buttonBox);
+
+        QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+        QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+        if (dialog.exec() == QDialog::Accepted) {
+            qDebug() << "Habit name:" << habitNameLineEdit->text();
+            qDebug() << "Selected item:" << comboBox->currentText();
+        }
+    });
+
+
 
     habitsLayout->addWidget(habitWidget);
 
