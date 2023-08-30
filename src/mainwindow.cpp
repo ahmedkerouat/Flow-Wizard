@@ -1016,17 +1016,47 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
     doneHabitButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
     habitHeaderLayout->addWidget(doneHabitButton);
 
-    QPushButton* editGoalNameButton = new QPushButton();
-    editGoalNameButton->setFixedSize(24, 24);
-    editGoalNameButton->setIcon(QIcon(":/imgs/modifyIcon.png"));
-    editGoalNameButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
-    habitHeaderLayout->addWidget(editGoalNameButton);
+    QPushButton* editHabitNameButton = new QPushButton();
+    editHabitNameButton->setFixedSize(24, 24);
+    editHabitNameButton->setIcon(QIcon(":/imgs/modifyIcon.png"));
+    editHabitNameButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+    habitHeaderLayout->addWidget(editHabitNameButton);
 
-    QPushButton* deleteGoalButton = new QPushButton();
-    deleteGoalButton->setFixedSize(24, 24);
-    deleteGoalButton->setIcon(QIcon(":/imgs/deleteIcon.png"));
-    deleteGoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
-    habitHeaderLayout->addWidget(deleteGoalButton);
+    QPushButton* deleteHabitButton = new QPushButton();
+    deleteHabitButton->setFixedSize(24, 24);
+    deleteHabitButton->setIcon(QIcon(":/imgs/deleteIcon.png"));
+    deleteHabitButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
+    habitHeaderLayout->addWidget(deleteHabitButton);
+
+    QObject::connect(deleteHabitButton, &QPushButton::clicked, [=]() mutable {
+        QMessageBox msgBox;
+                            msgBox.setWindowTitle("Confirmation");
+                            msgBox.setText("Are you sure you want to delete this habit?");
+                            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                            msgBox.setDefaultButton(QMessageBox::No);
+
+                            msgBox.setStyleSheet("QMessageBox {"
+                                                  "background-color: #071426;"
+                                                  "border: transparent;"
+                                                  "}"
+                                                  "QMessageBox QLabel {"
+                                                  "color: white;"
+                                                  "}"
+                                                  "QMessageBox QPushButton {"
+                                                 "background-color: #009ace;"
+                                                 "color: white;"
+                                                 "border: none;"
+                                                  "}"
+                                                  "QMessageBox QPushButton:hover {"
+                                                  "background-color: #1C82E7;"
+                                                  "}"
+                                                 "QMessageBox QPushButton:pressed{"
+                                                 "background-color: #1669C6;"
+                                                 "}");
+      if (msgBox.exec() == QMessageBox::Yes) {
+          habitWidget->deleteLater();
+      }
+    });
 
     habitsLayout->addWidget(habitWidget);
 
