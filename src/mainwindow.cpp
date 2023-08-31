@@ -1007,7 +1007,7 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
     habitHeaderLayout->addWidget(habitNameLineEdit);
 
     QLineEdit* repetitionNameLineEdit = new QLineEdit;
-    repetitionNameLineEdit->setText("Repetition :");
+    repetitionNameLineEdit->setText("Daily");
     repetitionNameLineEdit->setStyleSheet("background-color: transparent; border: none; color: white; font-size: 16px; padding: 5px;");
     repetitionNameLineEdit->setAlignment(Qt::AlignHCenter | Qt::AlignBaseline);
     repetitionNameLineEdit->setReadOnly(true);
@@ -1069,17 +1069,14 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
 
         QVBoxLayout mainLayout(&dialog);
 
-        QLabel titleLabel("Edit your habits settings");
-        titleLabel.setAlignment(Qt::AlignCenter);
-        titleLabel.setStyleSheet("font-size: 18px;");
-        mainLayout.addWidget(&titleLabel);
-
         QFormLayout formLayout;
         mainLayout.addLayout(&formLayout);
 
-        QLineEdit *habitNameLineEdit = new QLineEdit(&dialog);
-        habitNameLineEdit->setText("Habit");
-        formLayout.addRow("Habit name:", habitNameLineEdit);
+        QPushButton* changeHabitRepetition = new QPushButton("Change Repetition");
+
+        QLineEdit *changeLineEdit = new QLineEdit(&dialog);
+        changeLineEdit->setText(habitNameLineEdit->text());
+        mainLayout.addWidget(changeLineEdit);
 
         QComboBox *comboBox = new QComboBox(&dialog);
             comboBox->addItem("Hourly");
@@ -1088,7 +1085,22 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
             comboBox->addItem("Monthly");
             comboBox->addItem("Yearly");
             comboBox->addItem("Custom");
-            formLayout.addRow("Habit repetition:", comboBox);
+       mainLayout.addWidget(comboBox);
+       comboBox->setStyleSheet("QComboBox {"
+                               "   padding-left: 85px;"
+                               "}"
+                               );
+
+       comboBox->hide();
+       changeHabitRepetition->setText(repetitionNameLineEdit->text());
+
+        mainLayout.addWidget(changeHabitRepetition, Qt::AlignLeft);
+        QObject::connect(changeHabitRepetition, &QPushButton::clicked, [&changeHabitRepetition, &comboBox]() mutable {
+            comboBox->show();
+            changeHabitRepetition->hide();
+            changeHabitRepetition = nullptr;
+
+        });
 
         QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                    Qt::Horizontal, &dialog);
@@ -1098,8 +1110,10 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
         QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
         if (dialog.exec() == QDialog::Accepted) {
-            qDebug() << "Habit name:" << habitNameLineEdit->text();
-            qDebug() << "Selected item:" << comboBox->currentText();
+            habitNameLineEdit->setText(changeLineEdit->text());
+            if(changeHabitRepetition == nullptr)
+            repetitionNameLineEdit->setText(comboBox->currentText());
+
         }
     });
 
