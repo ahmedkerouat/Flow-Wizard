@@ -1073,9 +1073,20 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
         mainLayout.addLayout(&formLayout);
 
         QPushButton* changeHabitRepetition = new QPushButton("Change Repetition");
+        changeHabitRepetition->setStyleSheet("QPushButton {"
+                                                           "border: 1px solid white;"
+                                                             "color: white;"
+                                                            "}"
+                                                           "QPushButton:hover {"
+                                                            "background-color: #009ace;"
+                                                            "}");
+        changeHabitRepetition->setText(repetitionNameLineEdit->text());
 
         QLineEdit *changeLineEdit = new QLineEdit(&dialog);
         changeLineEdit->setText(habitNameLineEdit->text());
+        changeLineEdit->setStyleSheet("background-color: #071426;"
+                                      "color: white;"
+                                      "border: 1px solid white;");
         mainLayout.addWidget(changeLineEdit);
 
         QComboBox *comboBox = new QComboBox(&dialog);
@@ -1086,13 +1097,32 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
             comboBox->addItem("Yearly");
             comboBox->addItem("Custom");
        mainLayout.addWidget(comboBox);
-       comboBox->setStyleSheet("QComboBox {"
-                               "   padding-left: 85px;"
-                               "}"
-                               );
 
+       QString comboBoxStylesheet = "QComboBox {"
+                                   "    padding-left: 85px;"
+                                   "    background-color: #071426;"
+                                   "    color: white;"
+                                   "    border: 1px solid white;"
+                                   "}"
+                                   "QComboBox:hover {"
+                                   "    background-color: #071426;"
+                                   "    border: 1px solid #009ace;"
+                                   "}"
+                                   "QComboBox::drop-down {"
+                                   "    subcontrol-origin: padding;"
+                                   "    subcontrol-position: top right;"
+                                   "    width: 20px;"
+                                   "    border-left-width: 1px;"
+                                   "    border-left-color: white;"
+                                   "    border-left-style: solid;"
+                                   "}"
+                                   "QComboBox QAbstractItemView:item {"
+                                   "    background-color: #071426;"
+                                   "    color: white;"
+                                   "}";
+
+       comboBox->setStyleSheet(comboBoxStylesheet);
        comboBox->hide();
-       changeHabitRepetition->setText(repetitionNameLineEdit->text());
 
         mainLayout.addWidget(changeHabitRepetition, Qt::AlignLeft);
         QObject::connect(changeHabitRepetition, &QPushButton::clicked, [&changeHabitRepetition, &comboBox]() mutable {
@@ -1104,6 +1134,8 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
 
         QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                    Qt::Horizontal, &dialog);
+        buttonBox.button(QDialogButtonBox::Ok)->setStyleSheet("color:white;background-color:#009ace;border:none;");
+        buttonBox.button(QDialogButtonBox::Cancel)->setStyleSheet("color:white;background-color:#009ace;border:none;");
         mainLayout.addWidget(&buttonBox);
 
         QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
