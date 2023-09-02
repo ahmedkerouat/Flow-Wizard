@@ -20,6 +20,7 @@
 #include <QFormLayout>
 #include <QDialogButtonBox>
 #include <QComboBox>
+#include <QAbstractItemView>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -1099,29 +1100,38 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
        mainLayout.addWidget(comboBox);
 
        QString comboBoxStylesheet = "QComboBox {"
-                                   "    padding-left: 85px;"
-                                   "    background-color: #071426;"
+                                      "    padding-left: 85px;"
+                                      "    background-color: #071426;"
+                                      "    color: white;"
+                                      "    border: 1px solid white;"
+                                      "}"
+                                      "QComboBox:hover {"
+                                      "    background-color: #071426;"
+                                      "    border: 1px solid #009ace;"
+                                      "}"
+                                      "QComboBox::drop-down {"
+                                      "    subcontrol-origin: padding;"
+                                      "    subcontrol-position: top right;"
+                                      "    width: 20px;"
+                                      "    border-left-width: 1px;"
+                                      "    border-left-color: white;"
+                                      "    border-left-style: solid;"
+                                      "}" ;
+       QString listViewStylesheet = "QListView {"
+                                   "    border: none;"
                                    "    color: white;"
-                                   "    border: 1px solid white;"
+                                   "    font-weight: bold;"
+                                   "    selection-background-color: #071426;"
+                                   "    margin-left: -10px;"
+                                   "    padding-left: 15px;"
                                    "}"
-                                   "QComboBox:hover {"
+                                   "QListView::item:hover {"
                                    "    background-color: #071426;"
-                                   "    border: 1px solid #009ace;"
-                                   "}"
-                                   "QComboBox::drop-down {"
-                                   "    subcontrol-origin: padding;"
-                                   "    subcontrol-position: top right;"
-                                   "    width: 20px;"
-                                   "    border-left-width: 1px;"
-                                   "    border-left-color: white;"
-                                   "    border-left-style: solid;"
-                                   "}"
-                                   "QComboBox QAbstractItemView:item {"
-                                   "    background-color: #071426;"
-                                   "    color: white;"
+                                   "    border: none;"
                                    "}";
 
        comboBox->setStyleSheet(comboBoxStylesheet);
+       comboBox->view()->setStyleSheet(listViewStylesheet);
        comboBox->hide();
 
         mainLayout.addWidget(changeHabitRepetition, Qt::AlignLeft);
