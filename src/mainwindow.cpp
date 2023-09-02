@@ -1,9 +1,10 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "aspectratiowidget.h"
+#include <calendarpopupdialog.h>
 #include <QPixmap>
 #include <QLabel>
 #include <QGridLayout>
-#include "aspectratiowidget.h"
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QTextEdit>
@@ -21,7 +22,7 @@
 #include <QDialogButtonBox>
 #include <QComboBox>
 #include <QAbstractItemView>
-
+#include <QCalendarWidget>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -1091,7 +1092,6 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
         mainLayout.addWidget(changeLineEdit);
 
         QComboBox *comboBox = new QComboBox(&dialog);
-            comboBox->addItem("Hourly");
             comboBox->addItem("Daily");
             comboBox->addItem("Weekly");
             comboBox->addItem("Monthly");
@@ -1134,8 +1134,11 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
        comboBox->view()->setStyleSheet(listViewStylesheet);
        comboBox->hide();
 
+        CalendarPopupDialog calendarPopup;
+
         mainLayout.addWidget(changeHabitRepetition, Qt::AlignLeft);
         QObject::connect(changeHabitRepetition, &QPushButton::clicked, [&changeHabitRepetition, &comboBox]() mutable {
+
             comboBox->show();
             changeHabitRepetition->hide();
             changeHabitRepetition = nullptr;
@@ -1153,8 +1156,16 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
 
         if (dialog.exec() == QDialog::Accepted) {
             habitNameLineEdit->setText(changeLineEdit->text());
-            if(changeHabitRepetition == nullptr)
+            if(changeHabitRepetition == nullptr){
             repetitionNameLineEdit->setText(comboBox->currentText());
+            if (comboBox->currentText() == "Yearly") {
+                int result = calendarPopup.exec();
+                if (result == QDialog::Accepted) {
+                    QString selectedDate = calendarPopup.getSelectedDate().toString("yyyy-MM-dd");
+
+                }
+            }
+            }
 
         }
     });
