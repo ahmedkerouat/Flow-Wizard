@@ -21,6 +21,7 @@ set(PROJECT_SOURCES
         mainwindow.ui
         AspectRatioWidget.cpp
         AspectRatioWidget.h
+        calendarpopupdialog.h
         ressouces/mainressources.qrc
         ${TS_FILES}
 )
