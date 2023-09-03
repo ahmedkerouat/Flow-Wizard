@@ -1161,7 +1161,8 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
             if (comboBox->currentText() == "Yearly") {
                 int result = calendarPopup.exec();
                 if (result == QDialog::Accepted) {
-                    QString selectedDate = calendarPopup.getSelectedDate().toString("yyyy-MM-dd");
+                    QString selectedDate = calendarPopup.getSelectedDate().toString("MM-dd");
+                    qDebug() << selectedDate;
 
                 }
             }
