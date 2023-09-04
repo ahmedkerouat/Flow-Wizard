@@ -1046,6 +1046,31 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
     deleteHabitButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
     habitHeaderLayout->addWidget(deleteHabitButton);
 
+    QWidget* bottomLeftWidget = new QWidget(habitsWidget);
+    bottomLeftWidget->setStyleSheet("background-color: transparent;");
+    bottomLeftWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+    bottomLeftWidget->setMaximumWidth(75);
+
+    QVBoxLayout* bottomLeftLayout = new QVBoxLayout(bottomLeftWidget);
+
+    QLineEdit* textActiveLineEdit = new QLineEdit;
+    textActiveLineEdit->setText("Active");
+    textActiveLineEdit->setStyleSheet("background-color: transparent; border: none; color: white; font-size: 16px; padding: 5px;");
+    textActiveLineEdit->setAlignment(Qt::AlignRight | Qt::AlignBaseline);
+    textActiveLineEdit->setReadOnly(true);
+    bottomLeftLayout->addWidget(textActiveLineEdit);
+
+    bottomLeftLayout->addStretch(1);
+
+    QLineEdit* newLineEdit = new QLineEdit;
+    newLineEdit->setText("Date");
+    newLineEdit->setStyleSheet("background-color: transparent; border: none; color: white; font-size: 16px; padding: 5px;");
+    newLineEdit->setAlignment(Qt::AlignRight | Qt::AlignBaseline);
+    newLineEdit->setReadOnly(true);
+    bottomLeftLayout->addWidget(newLineEdit);
+
+    habitWidgetLayout->addWidget(bottomLeftWidget);
+
     QObject::connect(deleteHabitButton, &QPushButton::clicked, [=]() mutable {
         QMessageBox msgBox;
                             msgBox.setWindowTitle("Confirmation");
