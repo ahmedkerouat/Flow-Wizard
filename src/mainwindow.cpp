@@ -1049,16 +1049,16 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
     QWidget* bottomLeftWidget = new QWidget(habitsWidget);
     bottomLeftWidget->setStyleSheet("background-color: transparent;");
     bottomLeftWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
-    bottomLeftWidget->setMaximumWidth(75);
+    bottomLeftWidget->setMaximumWidth(120);
 
     QVBoxLayout* bottomLeftLayout = new QVBoxLayout(bottomLeftWidget);
 
-    QLineEdit* textActiveLineEdit = new QLineEdit;
-    textActiveLineEdit->setText("Active");
-    textActiveLineEdit->setStyleSheet("background-color: transparent; border: none; color: white; font-size: 16px; padding: 5px;");
-    textActiveLineEdit->setAlignment(Qt::AlignRight | Qt::AlignBaseline);
-    textActiveLineEdit->setReadOnly(true);
-    bottomLeftLayout->addWidget(textActiveLineEdit);
+    QLineEdit* progressLineEdit = new QLineEdit;
+    progressLineEdit->setText("In progress");
+    progressLineEdit->setStyleSheet("background-color: transparent; border: none; color: white; font-size: 16px; padding: 5px;");
+    progressLineEdit->setAlignment(Qt::AlignRight | Qt::AlignBaseline);
+    progressLineEdit->setReadOnly(true);
+    bottomLeftLayout->addWidget(progressLineEdit);
 
     bottomLeftLayout->addStretch(1);
 
