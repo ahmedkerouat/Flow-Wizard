@@ -23,6 +23,7 @@
 #include <QComboBox>
 #include <QAbstractItemView>
 #include <QCalendarWidget>
+#include <QScrollBar>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -963,18 +964,30 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     habitsWidget->setMinimumSize(800, 500);
     AspectRatioWidget* habitsAspectRatioWidget = new AspectRatioWidget(habitsWidget, 16, 9, centralWidget);
     gridLayout->addWidget(habitsAspectRatioWidget, 1, 0, 5, 1);
-    habitsWidget->setStyleSheet("background-color:  red");
-    //habitsWidget->setStyleSheet("background-color: #071426");
+    habitsWidget->setStyleSheet("background-color: #071426");
 
     QVBoxLayout* mainHabitsLayout = new QVBoxLayout(habitsWidget);
     mainHabitsLayout->setAlignment(Qt::AlignTop);
 
     QScrollArea* scrollArea = new QScrollArea(habitsWidget);
-    mainHabitsLayout->addWidget(scrollArea);
+    scrollArea->setStyleSheet("QScrollArea { background-color: transparent; border: none; width:10px;margin: 0px 0px 0px 0px; }");
 
     QWidget* habitsContainerWidget = new QWidget();
     scrollArea->setWidget(habitsContainerWidget);
     scrollArea->setWidgetResizable(true);
+
+    QString scrollbarStyle = "QScrollBar:vertical { background-color: transparent; width: 20px; }"
+                             "QScrollBar::add-page:vertical { background-color: #08172b; }"
+                             "QScrollBar::sub-page:vertical { background-color: #08172b; }"
+                            "QScrollBar::handle:vertical {"
+                            "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+                            "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130), stop:1 rgb(32, 47, 130));"
+                            "    min-height: 0px;"
+                            "}";
+
+    scrollArea->verticalScrollBar()->setStyleSheet(scrollbarStyle);
+
+    mainHabitsLayout->addWidget(scrollArea);
 
     QVBoxLayout* habitsContainerLayout = new QVBoxLayout(habitsContainerWidget);
     habitsContainerLayout->setSpacing(10);
@@ -993,7 +1006,7 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
 
     QWidget* habitWidget = new QWidget(habitsWidget);
     habitWidget->setObjectName("habitWidget");
-    habitWidget->setStyleSheet("background-color: green;");
+    habitWidget->setStyleSheet("background-color: #0B1F3B;");
     habitWidget->setMaximumHeight(200);
 
     QHBoxLayout* habitWidgetLayout = new QHBoxLayout(habitWidget);
