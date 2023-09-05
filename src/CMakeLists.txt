@@ -22,6 +22,8 @@ set(PROJECT_SOURCES
         AspectRatioWidget.cpp
         AspectRatioWidget.h
         calendarpopupdialog.h
+        multiselectcombobox.h
+        multiselectcombobox.cpp
         ressouces/mainressources.qrc
         ${TS_FILES}
 )
