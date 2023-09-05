@@ -5,6 +5,7 @@
 #include <QComboBox>
 #include <QCheckBox>
 #include <QAbstractItemView>
+#include "multiselectcombobox.h"
 
 class CalendarPopupDialog : public QDialog {
     Q_OBJECT
@@ -79,13 +80,7 @@ public:
         QVBoxLayout *weeklyLayout = new QVBoxLayout(&weeklyDialog);
 
         QComboBox *dayOfWeekComboBox = new QComboBox(&weeklyDialog);
-        dayOfWeekComboBox->addItem("Sunday");
-        dayOfWeekComboBox->addItem("Monday");
-        dayOfWeekComboBox->addItem("Tuesday");
-        dayOfWeekComboBox->addItem("Wednesday");
-        dayOfWeekComboBox->addItem("Thursday");
-        dayOfWeekComboBox->addItem("Friday");
-        dayOfWeekComboBox->addItem("Saturday");
+        dayOfWeekComboBox->addItems(daysOfWeek);
         dayOfWeekComboBox->setStyleSheet(comboBoxStylesheet);
         dayOfWeekComboBox->view()->setStyleSheet(listViewStylesheet);
 
@@ -109,23 +104,64 @@ public:
             }
         }
 
-
         return QDate();
     }
 
+
     void customRepetitionPopup() {
-        QDialog weeklyDialog(this);
-        weeklyDialog.setWindowTitle("Custom Repetition");
-        weeklyDialog.setFixedSize(300, 150);
+        QDialog customDialog(this);
+        customDialog.setWindowTitle("Custom Repetition");
+        customDialog.setFixedSize(300, 150);
 
-        QVBoxLayout *customDialogLayout = new QVBoxLayout(&weeklyDialog);
+        QVBoxLayout *customDialogLayout = new QVBoxLayout(&customDialog);
+
+        MultiSelectComboBox *daysComboBox = new MultiSelectComboBox(&customDialog);
+        daysComboBox->addItems(daysOfWeek);
+        daysComboBox->setStyleSheet(comboBoxStylesheet);
+        customDialogLayout->addWidget(daysComboBox);
+
+        MultiSelectComboBox *monthsComboBox = new MultiSelectComboBox(&customDialog);
+        QStringList monthsOfYear = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+        monthsComboBox->addItems(monthsOfYear);
+        monthsComboBox->setStyleSheet(comboBoxStylesheet);
+        customDialogLayout->addWidget(monthsComboBox);
+
+        MultiSelectComboBox *yearsComboBox = new MultiSelectComboBox(&customDialog);
+        int currentYear = QDate::currentDate().year();
+        QStringList years;
+        for (int i = 0; i < 10; ++i) {
+            years.append(QString::number(currentYear + i));
+        }
+        yearsComboBox->addItems(years);
+        yearsComboBox->setStyleSheet(comboBoxStylesheet);
+        customDialogLayout->addWidget(yearsComboBox);
+
+        QObject::connect(daysComboBox, &MultiSelectComboBox::selectionChanged, [&]() {
+            QStringList selectedItems = daysComboBox->currentText();
+            qDebug() << "Selected Days: " << selectedItems.join(", ");
+        });
+
+        QObject::connect(monthsComboBox, &MultiSelectComboBox::selectionChanged, [&]() {
+            QStringList selectedItems = monthsComboBox->currentText();
+            qDebug() << "Selected Months: " << selectedItems.join(", ");
+        });
+
+        QObject::connect(yearsComboBox, &MultiSelectComboBox::selectionChanged, [&]() {
+            QStringList selectedItems = yearsComboBox->currentText();
+            qDebug() << "Selected Years: " << selectedItems.join(", ");
+        });
+        QPushButton *customOkButton = new QPushButton("OK", &customDialog);
+        customOkButton->setStyleSheet("color:white;background-color:#009ace;border:none;");
+        customDialogLayout->addWidget(customOkButton);
+        connect(customOkButton, &QPushButton::clicked, &customDialog, &QDialog::accept);
+
+        customDialog.exec();
     }
-
-
 
 
 private:
     QCalendarWidget *calendarWidget;
+    const   QStringList daysOfWeek = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
     const   QString calendarStylesheet =
             "QCalendarWidget QToolButton {"
             "    height: 30px;"
