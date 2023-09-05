@@ -24,6 +24,7 @@
 #include <QAbstractItemView>
 #include <QCalendarWidget>
 #include <QScrollBar>
+#include <QDate>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -1062,12 +1063,14 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
 
     bottomLeftLayout->addStretch(1);
 
-    QLineEdit* newLineEdit = new QLineEdit;
-    newLineEdit->setText("Date");
-    newLineEdit->setStyleSheet("background-color: transparent; border: none; color: white; font-size: 16px; padding: 5px;");
-    newLineEdit->setAlignment(Qt::AlignRight | Qt::AlignBaseline);
-    newLineEdit->setReadOnly(true);
-    bottomLeftLayout->addWidget(newLineEdit);
+    QDate currentDate = QDate::currentDate();
+    QString formattedDate = currentDate.toString("dd/MM/yyyy");
+    QLineEdit* dateLineEdit = new QLineEdit;
+    dateLineEdit->setText(formattedDate);
+    dateLineEdit->setStyleSheet("background-color: transparent; border: none; color: white; font-size: 16px; padding: 5px;");
+    dateLineEdit->setAlignment(Qt::AlignRight | Qt::AlignBaseline);
+    dateLineEdit->setReadOnly(true);
+    bottomLeftLayout->addWidget(dateLineEdit);
 
     habitWidgetLayout->addWidget(bottomLeftWidget);
 
@@ -1199,10 +1202,27 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
             if (comboBox->currentText() == "Yearly") {
                 int result = calendarPopup.exec();
                 if (result == QDialog::Accepted) {
-                    QString selectedDate = calendarPopup.getSelectedDate().toString("MM-dd");
-                    qDebug() << selectedDate;
+                    QString selectedDate = calendarPopup.getSelectedDate().toString("dd/MM/yyyy");
+                    if (calendarPopup.getSelectedDate() < currentDate)
+                            selectedDate = calendarPopup.getSelectedDate().addYears(1).toString("dd/MM/yyyy");
+                    dateLineEdit->setText(selectedDate);
 
                 }
+            }
+            if (comboBox->currentText() == "Monthly") {
+                        QDate repetitionDate = calendarPopup.showMonthlyRepetitionPopup();
+                        if (repetitionDate.isValid()) {
+                            //setText(repetitionDate.toString("dddd, MMMM d"));
+                        }
+            }
+            if (comboBox->currentText() == "Weekly") {
+                        QDate repetitionDate = calendarPopup.showWeeklyRepetitionPopup();
+                        if (repetitionDate.isValid()) {
+                            qDebug() << repetitionDate.toString("dddd, MMMM d");
+                        }
+            }
+            if(comboBox->currentText() == "Custom"){
+                calendarPopup.customRepetitionPopup();
             }
             }
 
