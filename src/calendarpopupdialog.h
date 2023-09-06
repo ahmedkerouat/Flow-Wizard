@@ -108,7 +108,7 @@ public:
     }
 
 
-    void customRepetitionPopup() {
+     QStringList customRepetitionPopup() {
         QDialog customDialog(this);
         customDialog.setWindowTitle("Custom Repetition");
         customDialog.setFixedSize(300, 150);
@@ -136,27 +136,37 @@ public:
         yearsComboBox->setStyleSheet(comboBoxStylesheet);
         customDialogLayout->addWidget(yearsComboBox);
 
-        QObject::connect(daysComboBox, &MultiSelectComboBox::selectionChanged, [&]() {
-            QStringList selectedItems = daysComboBox->currentText();
-            qDebug() << "Selected Days: " << selectedItems.join(", ");
-        });
-
-        QObject::connect(monthsComboBox, &MultiSelectComboBox::selectionChanged, [&]() {
-            QStringList selectedItems = monthsComboBox->currentText();
-            qDebug() << "Selected Months: " << selectedItems.join(", ");
-        });
-
-        QObject::connect(yearsComboBox, &MultiSelectComboBox::selectionChanged, [&]() {
-            QStringList selectedItems = yearsComboBox->currentText();
-            qDebug() << "Selected Years: " << selectedItems.join(", ");
-        });
         QPushButton *customOkButton = new QPushButton("OK", &customDialog);
         customOkButton->setStyleSheet("color:white;background-color:#009ace;border:none;");
         customDialogLayout->addWidget(customOkButton);
-        connect(customOkButton, &QPushButton::clicked, &customDialog, &QDialog::accept);
+
+        QStringList allDates;
+
+        QObject::connect(customOkButton, &QPushButton::clicked, [&]() {
+            QStringList selectedDays = daysComboBox->currentText();
+            QStringList selectedMonths = monthsComboBox->currentText();
+            QStringList selectedYears = yearsComboBox->currentText();
+
+            QDate currentDate = QDate::currentDate();
+            for (const QString &year : selectedYears) {
+                for (const QString &month : selectedMonths) {
+                    int daysInMonth = QDate::fromString(month, "MMMM").daysInMonth();
+                    for (int day = 1; day <= daysInMonth; ++day) {
+                        QDate loopDate(year.toInt(), QDate::fromString(month, "MMMM").month(), day);
+                        if (loopDate >= currentDate && selectedDays.contains(loopDate.toString("dddd"))) {
+                            allDates.append(loopDate.toString("dd/MM/yyyy"));
+                        }
+                    }
+                }
+            }
+            customDialog.accept();
+        });
 
         customDialog.exec();
+        return allDates;
     }
+
+
 
 
 private:
