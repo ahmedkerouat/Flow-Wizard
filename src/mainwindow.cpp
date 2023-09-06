@@ -1205,20 +1205,31 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
                     QString selectedDate = calendarPopup.getSelectedDate().toString("dd/MM/yyyy");
                     if (calendarPopup.getSelectedDate() < currentDate)
                             selectedDate = calendarPopup.getSelectedDate().addYears(1).toString("dd/MM/yyyy");
+                    if(calendarPopup.getSelectedDate() != currentDate)
+                        progressLineEdit->setText("Upcoming");
                     dateLineEdit->setText(selectedDate);
 
                 }
             }
+            if (comboBox->currentText() == "Daily") {
+
+            }
             if (comboBox->currentText() == "Monthly") {
                         QDate repetitionDate = calendarPopup.showMonthlyRepetitionPopup();
                         if (repetitionDate.isValid()) {
-                            //setText(repetitionDate.toString("dddd, MMMM d"));
+                            if (repetitionDate < currentDate)
+                                   repetitionDate = repetitionDate.addMonths(1);
+                           dateLineEdit->setText(repetitionDate.toString("dd/MM/yyyy"));
+                           if(repetitionDate > currentDate)
+                               progressLineEdit->setText("Upcoming");
                         }
             }
             if (comboBox->currentText() == "Weekly") {
                         QDate repetitionDate = calendarPopup.showWeeklyRepetitionPopup();
                         if (repetitionDate.isValid()) {
-                            qDebug() << repetitionDate.toString("dddd, MMMM d");
+                            dateLineEdit->setText(repetitionDate.toString("dd/MM/yyyy"));
+                            if(repetitionDate > currentDate)
+                                progressLineEdit->setText("Upcoming");
                         }
             }
             if(comboBox->currentText() == "Custom"){
