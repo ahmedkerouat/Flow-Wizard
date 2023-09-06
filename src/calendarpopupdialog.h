@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 #include <QComboBox>
 #include <QCheckBox>
+#include <QMessageBox>
 #include <QAbstractItemView>
 #include "multiselectcombobox.h"
 
@@ -159,7 +160,16 @@ public:
                     }
                 }
             }
+            if(!allDates.isEmpty())
             customDialog.accept();
+            else{
+                QMessageBox errorMessage;
+                errorMessage.setIcon(QMessageBox::Critical);
+                errorMessage.setText("No valid dates selected.");
+                errorMessage.setWindowTitle("Error");
+                errorMessage.setStyleSheet(messageBoxStylesheet);
+                errorMessage.exec();
+            }
         });
 
         customDialog.exec();
@@ -243,4 +253,23 @@ private:
                                            "    background-color: #071426;"
                                            "    border: none;"
                                            "}";
+
+     const          QString messageBoxStylesheet = ("QMessageBox {"
+                                                         "background-color: #071426;"
+                                                         "border: transparent;"
+                                                         "}"
+                                                         "QMessageBox QLabel {"
+                                                         "color: white;"
+                                                         "}"
+                                                         "QMessageBox QPushButton {"
+                                                        "background-color: #009ace;"
+                                                        "color: white;"
+                                                        "border: none;"
+                                                         "}"
+                                                         "QMessageBox QPushButton:hover {"
+                                                         "background-color: #1C82E7;"
+                                                         "}"
+                                                        "QMessageBox QPushButton:pressed{"
+                                                        "background-color: #1669C6;"
+                                                        "}");
 };

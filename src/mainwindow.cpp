@@ -1002,7 +1002,6 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
 
 }
 
-
 void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
 
     QWidget* habitWidget = new QWidget(habitsWidget);
@@ -1234,8 +1233,18 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
             }
             if(comboBox->currentText() == "Custom"){
                 QStringList repetitionDates = calendarPopup.customRepetitionPopup();
-                if(!repetitionDates.empty())
-                 qDebug() << repetitionDates[0];
+                if(!repetitionDates.empty()){
+                 dateLineEdit->setText(repetitionDates[0]);
+                 QDate date = QDate::fromString(repetitionDates[0], "dd/MM/yyyy");
+                 if (date > currentDate)
+                     progressLineEdit->setText("Upcoming");
+                 else{//today
+
+                 }
+                }
+                else{
+                    editHabitButton->click();
+                }
             }
             }
 
