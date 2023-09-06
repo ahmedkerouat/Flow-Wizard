@@ -1233,7 +1233,9 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
                         }
             }
             if(comboBox->currentText() == "Custom"){
-                calendarPopup.customRepetitionPopup();
+                QStringList repetitionDates = calendarPopup.customRepetitionPopup();
+                if(!repetitionDates.empty())
+                 qDebug() << repetitionDates[0];
             }
             }
 
