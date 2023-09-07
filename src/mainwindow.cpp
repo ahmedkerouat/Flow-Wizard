@@ -967,6 +967,27 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     gridLayout->addWidget(habitsAspectRatioWidget, 1, 0, 5, 1);
     habitsWidget->setStyleSheet("background-color: #071426");
 
+    QString folderName = "savedHabits";
+    QDir folderDir;
+    folderDir.mkpath(folderName);
+    QJsonObject jsonHabits;
+    QString fileName = QString("%1/habits.json").arg(folderName);
+    QFile file(fileName);
+
+    if(!file.exists()){
+      jsonHabits.insert("hideUpcoming",false);
+      jsonHabits.insert("number",0);
+
+      QJsonDocument document;
+              document.setObject( jsonHabits );
+              QByteArray bytes = document.toJson( QJsonDocument::Indented );
+              if( file.open( QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate ) )
+              {
+                  QTextStream iStream( &file );
+                  iStream << bytes;
+                  file.close();
+              }}
+
     QVBoxLayout* mainHabitsLayout = new QVBoxLayout(habitsWidget);
     mainHabitsLayout->setAlignment(Qt::AlignTop);
 
