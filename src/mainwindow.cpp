@@ -998,7 +998,23 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     addHabitButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 8px 16px; border-radius: 4px;");
     mainHabitsLayout->addWidget(addHabitButton, 0, Qt::AlignBottom | Qt::AlignLeft);
 
+    QPushButton* hideButton = new QPushButton("Hide Upcoming");
+    hideButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 8px 16px; border-radius: 4px;");
+    mainHabitsLayout->addWidget(hideButton, 0, Qt::AlignBottom | Qt::AlignLeft);
+    bool hidden = false;
+
     connect(addHabitButton, &QPushButton::clicked, [=]() { addHabit(habitsWidget, habitsContainerLayout); });
+
+    QObject::connect(hideButton, &QPushButton::clicked, [=, &hidden]() {
+         qDebug() << hidden;
+        if (hidden) {
+            hideButton->setText("Show Upcoming");
+            hidden = false;
+        } else{
+            hideButton->setText("Hide Upcoming");
+            hidden = true;
+        }
+    });
 
 }
 
@@ -1206,12 +1222,15 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
                             selectedDate = calendarPopup.getSelectedDate().addYears(1).toString("dd/MM/yyyy");
                     if(calendarPopup.getSelectedDate() != currentDate)
                         progressLineEdit->setText("Upcoming");
+                    else
+                        progressLineEdit->setText("In progress");
                     dateLineEdit->setText(selectedDate);
 
                 }
             }
             if (comboBox->currentText() == "Daily") {
-
+                progressLineEdit->setText("In progress");
+                dateLineEdit->setText(currentDate.toString("dd/MM/yyyy"));
             }
             if (comboBox->currentText() == "Monthly") {
                         QDate repetitionDate = calendarPopup.showMonthlyRepetitionPopup();
@@ -1221,6 +1240,8 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
                            dateLineEdit->setText(repetitionDate.toString("dd/MM/yyyy"));
                            if(repetitionDate > currentDate)
                                progressLineEdit->setText("Upcoming");
+                           else
+                               progressLineEdit->setText("In progress");
                         }
             }
             if (comboBox->currentText() == "Weekly") {
@@ -1229,6 +1250,8 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
                             dateLineEdit->setText(repetitionDate.toString("dd/MM/yyyy"));
                             if(repetitionDate > currentDate)
                                 progressLineEdit->setText("Upcoming");
+                            else
+                                progressLineEdit->setText("In progress");
                         }
             }
             if(comboBox->currentText() == "Custom"){
@@ -1238,8 +1261,8 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
                  QDate date = QDate::fromString(repetitionDates[0], "dd/MM/yyyy");
                  if (date > currentDate)
                      progressLineEdit->setText("Upcoming");
-                 else{//today
-
+                 else{
+                    progressLineEdit->setText("In progress");
                  }
                 }
                 else{
@@ -1249,6 +1272,11 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
             }
 
         }
+
+        if(progressLineEdit->text() == "Upcoming"){
+            qDebug("Hello!");
+        }
+
     });
 
 
