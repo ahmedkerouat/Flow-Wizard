@@ -1285,6 +1285,29 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
         if (dialog.exec() == QDialog::Accepted) {
             habitNameLineEdit->setText(changeLineEdit->text());
             if(changeHabitRepetition == nullptr){
+
+                QString folderName = "savedHabits";
+                QString fileName = QString("%1/habits.json").arg(folderName);
+                QFile file(fileName);
+                if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+                    QByteArray data = file.readAll();
+                    QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+                    QJsonObject jsonObj = jsonDoc.object();
+                    QString habitSetTitle = QString("Habit%1").arg(habitIndex);
+                    QJsonObject list = jsonObj["list"].toObject();
+
+                    QJsonObject editedHabit = list[habitSetTitle].toObject();
+                    editedHabit["title"] = changeLineEdit->text();
+                    editedHabit["repetition"] = comboBox->currentText();
+                    list[habitSetTitle] = editedHabit;
+                    jsonObj["list"] = list;
+
+                    file.resize(0);
+                    file.write(QJsonDocument(jsonObj).toJson());
+                    file.close();
+                }
+
+
             repetitionNameLineEdit->setText(comboBox->currentText());
             if (comboBox->currentText() == "Yearly") {
                 int result = calendarPopup.exec();
