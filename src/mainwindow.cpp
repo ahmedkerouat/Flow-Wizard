@@ -502,9 +502,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
               int numSubgoals = jsonObj["subgoals"].toInt();
               QJsonObject subgoalTitlesObj = jsonObj["subgoalsTitles"].toObject();
 
-              int iteration = 0;
               for (auto subgoalIt = subgoalTitlesObj.begin(); subgoalIt != subgoalTitlesObj.end(); ++subgoalIt){
-                  iteration++;
                   QString subgoalKey = subgoalIt.key();
                   QJsonObject subgoalObj = subgoalTitlesObj[subgoalKey].toObject();
                   QString subgoalGivenTitle = subgoalKey;
@@ -696,7 +694,7 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                 file.close();
         }
 
-            connect(addSubgoalButton, &QPushButton::clicked, [=]() {addSubgoal(1, goalCounter,folderName,subgoalsContainerLayout, goalsWidget, "None", false);});
+            connect(addSubgoalButton, &QPushButton::clicked, [=]() {addSubgoal(0, goalCounter,folderName,subgoalsContainerLayout, goalsWidget, "None", false);});
 
             goalWidgetLayout->addWidget(subgoalsScrollArea);
             goalsContainerLayout->insertWidget(goalsContainerLayout->count() / 2, goalWidget);
@@ -767,7 +765,7 @@ void MainWindow::addSubgoal(int subgoalIndex, int goalCounter,QString folderName
         deleteSubgoalButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 0; border-radius: 12px;");
         subgoalLayout->addWidget(deleteSubgoalButton);
 
-        if(subgoalGivenTitle != "None")
+        if(subgoalIndex)
             subgoalLabel->setText(subgoalGivenTitle);
         if(subgoalMarked){
             QFont font = subgoalLabel->font();
@@ -775,7 +773,7 @@ void MainWindow::addSubgoal(int subgoalIndex, int goalCounter,QString folderName
             subgoalLabel->setFont(font);
         }
 
-        if(subgoalGivenTitle == "None"){
+        if(subgoalIndex == 0){
 
         QString fileName = QString("%1/goal_%2.json").arg(folderName).arg(goalCounter);
         QFile file(fileName);
@@ -1157,7 +1155,7 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
     QString folderName = "savedHabits";
     QString fileName = QString("%1/habits.json").arg(folderName);
     QFile file(fileName);
-    if(habitIndex == 0)
+    if(habitIndex == 0){
     if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
 
         QByteArray data = file.readAll();
@@ -1178,6 +1176,10 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
         file.resize(0);
         file.write(QJsonDocument(jsonObj).toJson());
         file.close();
+    }}
+    else{
+        habitNameLineEdit->setText(habitTitle);
+        repetitionNameLineEdit->setText(repetition);
     }
 
     QObject::connect(deleteHabitButton, &QPushButton::clicked, [=]() mutable {
@@ -1318,23 +1320,21 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
 
         if (dialog.exec() == QDialog::Accepted) {
             habitNameLineEdit->setText(changeLineEdit->text());
+            QString folderName = "savedHabits";
+            QString fileName = QString("%1/habits.json").arg(folderName);
+            QFile file(fileName);
+         if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+             QByteArray data = file.readAll();
+             QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+             QJsonObject jsonObj = jsonDoc.object();
+             QString habitSetTitle = QString("Habit%1").arg(habitIndex);
+             QJsonObject list = jsonObj["list"].toObject();
+
+             QJsonObject editedHabit = list[habitSetTitle].toObject();
+             editedHabit["title"] = changeLineEdit->text();
             if(changeHabitRepetition == nullptr){
 
-                QString folderName = "savedHabits";
-                QString fileName = QString("%1/habits.json").arg(folderName);
-                QFile file(fileName);
-                if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
-                    QByteArray data = file.readAll();
-                    QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
-                    QJsonObject jsonObj = jsonDoc.object();
-                    QString habitSetTitle = QString("Habit%1").arg(habitIndex);
-                    QJsonObject list = jsonObj["list"].toObject();
-
-                    QJsonObject editedHabit = list[habitSetTitle].toObject();
-                    editedHabit["title"] = changeLineEdit->text();
-                    editedHabit["repetition"] = comboBox->currentText();
-
-
+            editedHabit["repetition"] = comboBox->currentText();
             repetitionNameLineEdit->setText(comboBox->currentText());
             if (comboBox->currentText() == "Yearly") {
                 int result = calendarPopup.exec();
@@ -1398,12 +1398,13 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
                     editHabitButton->click();
                 }
             }
+
+        }
             list[habitSetTitle] = editedHabit;
             jsonObj["list"] = list;
             file.resize(0);
             file.write(QJsonDocument(jsonObj).toJson());
             file.close();
-        }
             }
 
         }
