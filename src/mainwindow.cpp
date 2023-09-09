@@ -515,7 +515,6 @@ void MainWindow::on_GoalsButton_clicked(QPushButton* inspirationButton, QPushBut
                   }
 
                   int intValue = firstValue.toInt();
-                  qDebug() << firstValue;
                   addSubgoal(intValue, goalCounter,folderName,subgoalsContainerLayout, goalsWidget, subgoalObj["title"].toString(), subgoalObj["marked"].toBool());
               }
               }
@@ -982,9 +981,11 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     QJsonObject jsonList;
     QString fileName = QString("%1/habits.json").arg(folderName);
     QFile file(fileName);
+    bool hidden;
 
     if(!file.exists()){
       jsonHabits.insert("hideUpcoming",false);
+      hidden = false;
       jsonHabits.insert("number",0);
       jsonHabits.insert("list", jsonList);
 
@@ -1032,18 +1033,31 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     QPushButton* hideButton = new QPushButton("Hide Upcoming");
     hideButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 8px 16px; border-radius: 4px;");
     mainHabitsLayout->addWidget(hideButton, 0, Qt::AlignBottom | Qt::AlignLeft);
-    bool hidden = false;
 
     connect(addHabitButton, &QPushButton::clicked, [=]() { addHabit(habitsWidget, habitsContainerLayout); });
 
-    QObject::connect(hideButton, &QPushButton::clicked, [=, &hidden]() {
-         qDebug() << hidden;
-        if (hidden) {
+    QObject::connect(hideButton, &QPushButton::clicked, [=]() mutable {
+
+
+        qDebug() << hidden;
+        QString folderName = "savedHabits";
+        QString fileName = QString("%1/habits.json").arg(folderName);
+        QFile file(fileName);
+        if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+            QByteArray data = file.readAll();
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+            QJsonObject jsonObj = jsonDoc.object();
+            jsonObj["hideUpcoming"] = hidden;
+            file.resize(0);
+            file.write(QJsonDocument(jsonObj).toJson());
+            file.close();
+        }
+        if (!hidden) {
             hideButton->setText("Show Upcoming");
-            hidden = false;
+            hidden = true;
         } else{
             hideButton->setText("Hide Upcoming");
-            hidden = true;
+            hidden = false;
         }
     });
 
@@ -1134,6 +1148,7 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
 
         QJsonObject list = jsonObj["list"].toObject();
         QJsonObject habitSettings;
+        habitSettings.insert("times", "");
         habitSettings.insert("repetition", "Daily");
         habitSettings.insert("title", "Habit");
         QString habit = QString("Habit%1").arg(jsonObj["number"].toInt());
@@ -1180,9 +1195,9 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
               QByteArray data = file.readAll();
               QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
               QJsonObject jsonObj = jsonDoc.object();
-              QString subgoalSetTitle = QString("Habit%1").arg(habitIndex);
+              QString deletedHabit = QString("Habit%1").arg(habitIndex);
               QJsonObject habitObject = jsonObj["list"].toObject();
-              habitObject.remove(subgoalSetTitle);
+              habitObject.remove(deletedHabit);
               jsonObj["list"] = habitObject;
               file.resize(0);
               file.write(QJsonDocument(jsonObj).toJson());
@@ -1299,13 +1314,6 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
                     QJsonObject editedHabit = list[habitSetTitle].toObject();
                     editedHabit["title"] = changeLineEdit->text();
                     editedHabit["repetition"] = comboBox->currentText();
-                    list[habitSetTitle] = editedHabit;
-                    jsonObj["list"] = list;
-
-                    file.resize(0);
-                    file.write(QJsonDocument(jsonObj).toJson());
-                    file.close();
-                }
 
 
             repetitionNameLineEdit->setText(comboBox->currentText());
@@ -1313,6 +1321,8 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
                 int result = calendarPopup.exec();
                 if (result == QDialog::Accepted) {
                     QString selectedDate = calendarPopup.getSelectedDate().toString("dd/MM/yyyy");
+                    QString repetitionDate = calendarPopup.getSelectedDate().toString("dd/MM");
+                    editedHabit["times"] = repetitionDate;
                     if (calendarPopup.getSelectedDate() < currentDate)
                             selectedDate = calendarPopup.getSelectedDate().addYears(1).toString("dd/MM/yyyy");
                     if(calendarPopup.getSelectedDate() != currentDate)
@@ -1333,6 +1343,7 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
                             if (repetitionDate < currentDate)
                                    repetitionDate = repetitionDate.addMonths(1);
                            dateLineEdit->setText(repetitionDate.toString("dd/MM/yyyy"));
+                           editedHabit["times"] = repetitionDate.toString("dd");
                            if(repetitionDate > currentDate)
                                progressLineEdit->setText("Upcoming");
                            else
@@ -1347,6 +1358,8 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
                                 progressLineEdit->setText("Upcoming");
                             else
                                 progressLineEdit->setText("In progress");
+                            int getDayOfWeek = repetitionDate.dayOfWeek();
+                            editedHabit["times"] = getDayOfWeek;
                         }
             }
             if(comboBox->currentText() == "Custom"){
@@ -1354,6 +1367,8 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
                 if(!repetitionDates.empty()){
                  dateLineEdit->setText(repetitionDates[0]);
                  QDate date = QDate::fromString(repetitionDates[0], "dd/MM/yyyy");
+                 QString timesString = repetitionDates.join(", ");
+                 editedHabit["times"] = timesString;
                  if (date > currentDate)
                      progressLineEdit->setText("Upcoming");
                  else{
@@ -1364,12 +1379,14 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
                     editHabitButton->click();
                 }
             }
+            list[habitSetTitle] = editedHabit;
+            jsonObj["list"] = list;
+            file.resize(0);
+            file.write(QJsonDocument(jsonObj).toJson());
+            file.close();
+        }
             }
 
-        }
-
-        if(progressLineEdit->text() == "Upcoming"){
-            qDebug("Hello!");
         }
 
     });
