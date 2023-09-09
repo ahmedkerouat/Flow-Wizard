@@ -983,22 +983,6 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     QFile file(fileName);
     bool hidden;
 
-    if(!file.exists()){
-      jsonHabits.insert("hideUpcoming",false);
-      hidden = false;
-      jsonHabits.insert("number",0);
-      jsonHabits.insert("list", jsonList);
-
-      QJsonDocument document;
-              document.setObject( jsonHabits );
-              QByteArray bytes = document.toJson( QJsonDocument::Indented );
-              if( file.open( QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate ) )
-              {
-                  QTextStream iStream( &file );
-                  iStream << bytes;
-                  file.close();
-              }}
-
     QVBoxLayout* mainHabitsLayout = new QVBoxLayout(habitsWidget);
     mainHabitsLayout->setAlignment(Qt::AlignTop);
 
@@ -1034,12 +1018,48 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     hideButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 8px 16px; border-radius: 4px;");
     mainHabitsLayout->addWidget(hideButton, 0, Qt::AlignBottom | Qt::AlignLeft);
 
-    connect(addHabitButton, &QPushButton::clicked, [=]() { addHabit(habitsWidget, habitsContainerLayout); });
+    if(!file.exists()){
+      jsonHabits.insert("hideUpcoming",false);
+      hidden = false;
+      jsonHabits.insert("number",0);
+      jsonHabits.insert("list", jsonList);
+
+      QJsonDocument document;
+              document.setObject( jsonHabits );
+              QByteArray bytes = document.toJson( QJsonDocument::Indented );
+              if( file.open( QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate ) )
+              {
+                  QTextStream iStream( &file );
+                  iStream << bytes;
+                  file.close();
+              }}
+
+    else if( file.open( QIODevice::ReadOnly | QIODevice::Text | QIODevice::Truncate ) )
+    {
+    QJsonObject jsonObj = QJsonDocument::fromJson(file.readAll()).object();
+    int numHabits = jsonObj["number"].toInt();
+    QJsonObject list = jsonObj["list"].toObject();
+
+    for (auto habitIt = list.begin(); habitIt != list.end(); ++habitIt){
+        QString habitKey = habitIt.key();
+        QJsonObject habitObj = list[habitKey].toObject();
+        QString habitGivenTitle = habitKey;
+        QString firstValue = "";
+
+        for(int i = 5; i < habitGivenTitle.length(); i++ ){
+            firstValue.append(habitGivenTitle.at(i));
+        }
+
+        int intValue = firstValue.toInt();
+        addHabit(habitsWidget, habitsContainerLayout, intValue, habitObj["title"].toString(), habitObj["repetition"].toString(),habitObj["times"].toString());
+    }
+        file.close();
+    }
+
+    connect(addHabitButton, &QPushButton::clicked, [=]() { addHabit(habitsWidget, habitsContainerLayout, 0, "", "", ""); });
 
     QObject::connect(hideButton, &QPushButton::clicked, [=]() mutable {
 
-
-        qDebug() << hidden;
         QString folderName = "savedHabits";
         QString fileName = QString("%1/habits.json").arg(folderName);
         QFile file(fileName);
@@ -1063,9 +1083,7 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
 
 }
 
-void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
-
-    int habitIndex;
+void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int habitIndex, QString habitTitle, QString repetition, QString times){
 
     QWidget* habitWidget = new QWidget(habitsWidget);
     habitWidget->setObjectName("habitWidget");
@@ -1139,6 +1157,7 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout){
     QString folderName = "savedHabits";
     QString fileName = QString("%1/habits.json").arg(folderName);
     QFile file(fileName);
+    if(habitIndex == 0)
     if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
 
         QByteArray data = file.readAll();
