@@ -1180,6 +1180,36 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
     else{
         habitNameLineEdit->setText(habitTitle);
         repetitionNameLineEdit->setText(repetition);
+        if(repetition != "Custom"){
+        QDate inputDate = QDate::fromString(times,"dd/MM/yyyy");
+        QDate outputDate = inputDate;
+         if (inputDate < currentDate){
+             if(repetition == "Weekly"){
+                 int daysToAdd = inputDate.dayOfWeek() - currentDate.dayOfWeek();
+                 if (daysToAdd < 0)
+                     daysToAdd += 7;
+                 outputDate = currentDate.addDays(daysToAdd);
+             }
+             if(repetition == "Daily")
+                 outputDate = currentDate;
+             if(repetition == "Monthly"){
+                 outputDate.setDate(currentDate.year(), currentDate.month(), inputDate.day());
+                 if(outputDate < currentDate)
+                     outputDate = outputDate.addMonths(1);
+             }
+             if(repetition == "Yearly"){
+                 int yearsToAdd = inputDate.year() - currentDate.year();
+                             if (yearsToAdd < 0)
+                                 yearsToAdd += 1;
+                outputDate = currentDate.addYears(yearsToAdd);
+             }
+         }
+         if (currentDate == outputDate)
+            progressLineEdit->setText("In progress");
+         else
+            progressLineEdit->setText("Upcoming");
+        dateLineEdit->setText(outputDate.toString("dd/MM/yyyy"));
+        }
     }
 
     QObject::connect(deleteHabitButton, &QPushButton::clicked, [=]() mutable {
@@ -1340,8 +1370,7 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
                 int result = calendarPopup.exec();
                 if (result == QDialog::Accepted) {
                     QString selectedDate = calendarPopup.getSelectedDate().toString("dd/MM/yyyy");
-                    QString repetitionDate = calendarPopup.getSelectedDate().toString("dd/MM");
-                    editedHabit["times"] = repetitionDate;
+                    editedHabit["times"] = selectedDate;
                     if (calendarPopup.getSelectedDate() < currentDate)
                             selectedDate = calendarPopup.getSelectedDate().addYears(1).toString("dd/MM/yyyy");
                     if(calendarPopup.getSelectedDate() != currentDate)
@@ -1362,7 +1391,7 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
                             if (repetitionDate < currentDate)
                                    repetitionDate = repetitionDate.addMonths(1);
                            dateLineEdit->setText(repetitionDate.toString("dd/MM/yyyy"));
-                           editedHabit["times"] = repetitionDate.toString("dd");
+                           editedHabit["times"] = repetitionDate.toString("dd/MM/yyyy");
                            if(repetitionDate > currentDate)
                                progressLineEdit->setText("Upcoming");
                            else
@@ -1377,8 +1406,7 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
                                 progressLineEdit->setText("Upcoming");
                             else
                                 progressLineEdit->setText("In progress");
-                            int getDayOfWeek = repetitionDate.dayOfWeek();
-                            editedHabit["times"] = getDayOfWeek;
+                            editedHabit["times"] = repetitionDate.toString("dd/MM/yyyy");
                         }
             }
             if(comboBox->currentText() == "Custom"){
