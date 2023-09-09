@@ -1036,6 +1036,7 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     {
     QJsonObject jsonObj = QJsonDocument::fromJson(file.readAll()).object();
     int numHabits = jsonObj["number"].toInt();
+    hidden = jsonObj["hidden"].toBool();
     QJsonObject list = jsonObj["list"].toObject();
 
     for (auto habitIt = list.begin(); habitIt != list.end(); ++habitIt){
@@ -1056,8 +1057,20 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
 
     connect(addHabitButton, &QPushButton::clicked, [=]() { addHabit(habitsWidget, habitsContainerLayout, 0, "", "", ""); });
 
+    if (hidden)
+        hideButton->setText("Show Upcoming");
+    else
+        hideButton->setText("Hide Upcoming");
+
     QObject::connect(hideButton, &QPushButton::clicked, [=]() mutable {
 
+        if (!hidden) {
+            hideButton->setText("Show Upcoming");
+            hidden = true;
+        } else{
+            hideButton->setText("Hide Upcoming");
+            hidden = false;
+        }
         QString folderName = "savedHabits";
         QString fileName = QString("%1/habits.json").arg(folderName);
         QFile file(fileName);
@@ -1069,13 +1082,6 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
             file.resize(0);
             file.write(QJsonDocument(jsonObj).toJson());
             file.close();
-        }
-        if (!hidden) {
-            hideButton->setText("Show Upcoming");
-            hidden = true;
-        } else{
-            hideButton->setText("Hide Upcoming");
-            hidden = false;
         }
     });
 
@@ -1155,6 +1161,8 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
     QString folderName = "savedHabits";
     QString fileName = QString("%1/habits.json").arg(folderName);
     QFile file(fileName);
+
+    //create json for new habits
     if(habitIndex == 0){
     if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
 
@@ -1178,6 +1186,7 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
         file.close();
     }}
 
+    //load json for old habits
     else{
         habitNameLineEdit->setText(habitTitle);
         repetitionNameLineEdit->setText(repetition);
