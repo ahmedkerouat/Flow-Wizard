@@ -1177,9 +1177,19 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
         file.write(QJsonDocument(jsonObj).toJson());
         file.close();
     }}
+
     else{
         habitNameLineEdit->setText(habitTitle);
         repetitionNameLineEdit->setText(repetition);
+       if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
+
+           QByteArray data = file.readAll();
+           QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+           QJsonObject jsonObj = jsonDoc.object();
+           QString habitString = QString("Habit%1").arg(habitIndex);
+           QJsonObject habitList = jsonObj["list"].toObject();
+           QJsonObject editedHabit = habitList[habitString].toObject();
+
         if(repetition != "Custom"){
         QDate inputDate = QDate::fromString(times,"dd/MM/yyyy");
         QDate outputDate = inputDate;
@@ -1209,7 +1219,40 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
          else
             progressLineEdit->setText("Upcoming");
         dateLineEdit->setText(outputDate.toString("dd/MM/yyyy"));
+        editedHabit["times"] = outputDate.toString("dd/MM/yyyy");
         }
+
+        else{
+            QStringList futureDates;
+            QStringList dateList = times.split(", ");
+            foreach (const QString &date, dateList) {
+                QDate inputDate = QDate::fromString(date, "dd/MM/yyyy");
+                if(inputDate >= currentDate)
+                    futureDates.append(date);
+            }
+            if(!futureDates.empty()){
+            QString futureDatesStr = futureDates.join(", ");
+            QDate outputDate = QDate::fromString(futureDates[0], "dd/MM/yyyy");
+            dateLineEdit->setText(outputDate.toString("dd/MM/yyyy"));
+            editedHabit["times"] = futureDatesStr;
+            if (currentDate == outputDate)
+               progressLineEdit->setText("In progress");
+            else
+               progressLineEdit->setText("Upcoming");
+            }
+            else{
+
+                habitWidget->deleteLater();
+                habitList.remove(habitString);
+
+            }
+        }
+        habitList[habitString] = editedHabit;
+        jsonObj["list"] = habitList;
+        file.resize(0);
+        file.write(QJsonDocument(jsonObj).toJson());
+        file.close();
+    }
     }
 
     QObject::connect(deleteHabitButton, &QPushButton::clicked, [=]() mutable {
