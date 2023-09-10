@@ -979,7 +979,9 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     QJsonObject jsonList;
     QString fileName = QString("%1/habits.json").arg(folderName);
     QFile file(fileName);
+
     bool hidden;
+    QList<QWidget*> upComingList;
 
     QVBoxLayout* mainHabitsLayout = new QVBoxLayout(habitsWidget);
     mainHabitsLayout->setAlignment(Qt::AlignTop);
@@ -1016,6 +1018,8 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     hideButton->setStyleSheet("background-color: #009ace; color: white; border: none; padding: 8px 16px; border-radius: 4px;");
     mainHabitsLayout->addWidget(hideButton, 0, Qt::AlignBottom | Qt::AlignLeft);
 
+    //check if json file exists
+
     if(!file.exists()){
       jsonHabits.insert("hideUpcoming",false);
       hidden = false;
@@ -1050,12 +1054,13 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
         }
 
         int intValue = firstValue.toInt();
-        addHabit(habitsWidget, habitsContainerLayout, intValue, habitObj["title"].toString(), habitObj["repetition"].toString(),habitObj["times"].toString());
+        addHabit(upComingList, habitsWidget, habitsContainerLayout, intValue, habitObj["title"].toString(), habitObj["repetition"].toString(),habitObj["times"].toString());
     }
         file.close();
     }
 
-    connect(addHabitButton, &QPushButton::clicked, [=]() { addHabit(habitsWidget, habitsContainerLayout, 0, "", "", ""); });
+
+    //hide upcoming habits
 
     if (hidden)
         hideButton->setText("Show Upcoming");
@@ -1071,6 +1076,7 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
             hideButton->setText("Hide Upcoming");
             hidden = false;
         }
+
         QString folderName = "savedHabits";
         QString fileName = QString("%1/habits.json").arg(folderName);
         QFile file(fileName);
@@ -1085,14 +1091,17 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
         }
     });
 
+    connect(addHabitButton, &QPushButton::clicked, [=]() mutable{ addHabit(upComingList, habitsWidget, habitsContainerLayout, 0, "", "", ""); });
+
 }
 
-void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int habitIndex, QString habitTitle, QString repetition, QString times){
+void MainWindow::addHabit(QList<QWidget*> &upComingList, QWidget* habitsWidget,QVBoxLayout* habitsLayout, int habitIndex, QString habitTitle, QString repetition, QString times){
 
     QWidget* habitWidget = new QWidget(habitsWidget);
     habitWidget->setObjectName("habitWidget");
     habitWidget->setStyleSheet("background-color: #0B1F3B;");
     habitWidget->setMaximumHeight(200);
+    int position = upComingList.size() +1;
 
     QHBoxLayout* habitWidgetLayout = new QHBoxLayout(habitWidget);
 
@@ -1225,8 +1234,11 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
          }
          if (currentDate == outputDate)
             progressLineEdit->setText("In progress");
-         else
+         else{
             progressLineEdit->setText("Upcoming");
+            upComingList.append(habitWidget);
+            position = upComingList.size() - 1;
+         }
         dateLineEdit->setText(outputDate.toString("dd/MM/yyyy"));
         editedHabit["times"] = outputDate.toString("dd/MM/yyyy");
         }
@@ -1246,8 +1258,11 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
             editedHabit["times"] = futureDatesStr;
             if (currentDate == outputDate)
                progressLineEdit->setText("In progress");
-            else
+            else{
                progressLineEdit->setText("Upcoming");
+               upComingList.append(habitWidget);
+               position = upComingList.size() - 1;
+            }
             }
             else{
 
@@ -1422,7 +1437,6 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
                 int result = calendarPopup.exec();
                 if (result == QDialog::Accepted) {
                     QString selectedDate = calendarPopup.getSelectedDate().toString("dd/MM/yyyy");
-                    editedHabit["times"] = selectedDate;
                     if (calendarPopup.getSelectedDate() < currentDate)
                             selectedDate = calendarPopup.getSelectedDate().addYears(1).toString("dd/MM/yyyy");
                     if(calendarPopup.getSelectedDate() != currentDate)
@@ -1430,6 +1444,7 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
                     else
                         progressLineEdit->setText("In progress");
                     dateLineEdit->setText(selectedDate);
+                    editedHabit["times"] = selectedDate;
 
                 }
             }
@@ -1479,7 +1494,15 @@ void MainWindow::addHabit(QWidget* habitsWidget,QVBoxLayout* habitsLayout, int h
                 }
             }
 
-        }
+        }   if(progressLineEdit->text() == "In progress"){
+                upComingList.removeAt(position);
+                position = upComingList.size() +1;
+            }
+            else{
+                upComingList.append(habitWidget);
+                position = upComingList.size() -1;
+            }
+
             list[habitSetTitle] = editedHabit;
             jsonObj["list"] = list;
             file.resize(0);
