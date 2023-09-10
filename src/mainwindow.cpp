@@ -1063,17 +1063,19 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     //hide upcoming habits
 
     if (hidden)
-        hideButton->setText("Show Upcoming");
-    else
         hideButton->setText("Hide Upcoming");
+    else
+        hideButton->setText("Show Upcoming");
+    for(auto upComingWidget : upComingList)
+        upComingWidget->setVisible(hidden);
 
     QObject::connect(hideButton, &QPushButton::clicked, [=]() mutable {
 
         if (!hidden) {
-            hideButton->setText("Show Upcoming");
+            hideButton->setText("Hide Upcoming");
             hidden = true;
         } else{
-            hideButton->setText("Hide Upcoming");
+            hideButton->setText("Show Upcoming");
             hidden = false;
         }
 
@@ -1089,6 +1091,8 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
             file.write(QJsonDocument(jsonObj).toJson());
             file.close();
         }
+        for(auto upComingWidget : upComingList)
+            upComingWidget->setVisible(hidden);
     });
 
     connect(addHabitButton, &QPushButton::clicked, [=]() mutable{ addHabit(upComingList, habitsWidget, habitsContainerLayout, 0, "", "", ""); });
