@@ -1040,7 +1040,7 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     {
     QJsonObject jsonObj = QJsonDocument::fromJson(file.readAll()).object();
     int numHabits = jsonObj["number"].toInt();
-    hidden = jsonObj["hidden"].toBool();
+    hidden = jsonObj["hideUpcoming"].toBool();
     QJsonObject list = jsonObj["list"].toObject();
 
     for (auto habitIt = list.begin(); habitIt != list.end(); ++habitIt){
@@ -1058,7 +1058,6 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
     }
         file.close();
     }
-
 
     //hide upcoming habits
 
