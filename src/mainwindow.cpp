@@ -1517,7 +1517,50 @@ void MainWindow::addHabit(QList<QWidget*> &upComingList, QWidget* habitsWidget,Q
 
     });
 
+    QObject::connect(doneHabitButton,&QPushButton::clicked, [=]() mutable {
 
+        QString messageBoxStylesheet = "QMessageBox {"
+                               "background-color: #071426;"
+                               "border: transparent;"
+                               "}"
+                               "QMessageBox QLabel {"
+                               "color: white;"
+                               "}"
+                               "QMessageBox QPushButton {"
+                              "background-color: #009ace;"
+                              "color: white;"
+                              "border: none;"
+                               "}"
+                               "QMessageBox QPushButton:hover {"
+                               "background-color: #1C82E7;"
+                               "}"
+                              "QMessageBox QPushButton:pressed{"
+                              "background-color: #1669C6;"
+                              "}";
+
+        if(progressLineEdit->text() == "In progress"){
+            QMessageBox msgBox;
+                            msgBox.setWindowTitle("Achieved habit");
+                            msgBox.setText("Have you successfully practiced this habit today?");
+                            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                            msgBox.setDefaultButton(QMessageBox::No);
+                            msgBox.setStyleSheet(messageBoxStylesheet);
+
+      if (msgBox.exec() == QMessageBox::Yes) {
+
+      }
+        }
+        else{
+            QMessageBox errorBox;
+            errorBox.setWindowTitle("Error");
+            errorBox.setText("You can not practice an upcoming habit!");
+            errorBox.setIcon(QMessageBox::Critical);
+            errorBox.setStandardButtons(QMessageBox::Ok);
+            errorBox.setStyleSheet(messageBoxStylesheet);
+            errorBox.exec();
+
+      }
+    });
 
     habitsLayout->addWidget(habitWidget);
 
