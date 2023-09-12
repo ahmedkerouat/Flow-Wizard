@@ -1419,6 +1419,11 @@ void MainWindow::addHabit(QList<QWidget*> &upComingList, QWidget* habitsWidget,Q
         QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
         if (dialog.exec() == QDialog::Accepted) {
+
+            bool validate = false;
+            if(progressLineEdit->text() == "Upcoming")
+                validate = false;
+
             habitNameLineEdit->setText(changeLineEdit->text());
             QString folderName = "savedHabits";
             QString fileName = QString("%1/habits.json").arg(folderName);
@@ -1497,9 +1502,9 @@ void MainWindow::addHabit(QList<QWidget*> &upComingList, QWidget* habitsWidget,Q
                 }
             }
 
-        }   if(progressLineEdit->text() == "In progress"){
+          if(progressLineEdit->text() == "In progress" && validate){
                 upComingList.removeAt(position);
-                position = upComingList.size() +1;
+                position = upComingList.size() -1;
             }
             else{
                 upComingList.append(habitWidget);
@@ -1512,6 +1517,7 @@ void MainWindow::addHabit(QList<QWidget*> &upComingList, QWidget* habitsWidget,Q
             file.write(QJsonDocument(jsonObj).toJson());
             file.close();
             }
+         }
 
         }
 
