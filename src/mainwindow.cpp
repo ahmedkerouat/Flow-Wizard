@@ -1065,8 +1065,9 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
         hideButton->setText("Hide Upcoming");
     else
         hideButton->setText("Show Upcoming");
-    for(auto upComingWidget : upComingList)
-        upComingWidget->setVisible(hidden);
+    if(!upComingList.empty())
+        for(auto upComingWidget : upComingList)
+            upComingWidget->setVisible(hidden);
 
     QObject::connect(hideButton, &QPushButton::clicked, [=]() mutable {
 
@@ -1090,8 +1091,9 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
             file.write(QJsonDocument(jsonObj).toJson());
             file.close();
         }
-        for(auto upComingWidget : upComingList)
-            upComingWidget->setVisible(hidden);
+        if(!upComingList.empty())
+            for(auto upComingWidget : upComingList)
+                upComingWidget->setVisible(hidden);
     });
 
     connect(addHabitButton, &QPushButton::clicked, [=]() mutable{ addHabit(upComingList, habitsWidget, habitsContainerLayout, 0, "", "", ""); });
@@ -1554,6 +1556,58 @@ void MainWindow::addHabit(QList<QWidget*> &upComingList, QWidget* habitsWidget,Q
 
       if (msgBox.exec() == QMessageBox::Yes) {
 
+        progressLineEdit->setText("Upcoming");
+        QString folderName = "savedHabits";
+        QString fileName = QString("%1/habits.json").arg(folderName);
+        QFile file(fileName);
+        if (file.open(QIODevice::ReadWrite | QIODevice::Text)){
+
+            QByteArray data = file.readAll();
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+            QJsonObject jsonObj = jsonDoc.object();
+            QString habitString = QString("Habit%1").arg(habitIndex);
+            QJsonObject habitList = jsonObj["list"].toObject();
+            QJsonObject editedHabit = habitList[habitString].toObject();
+
+        QDate inputDate = QDate::fromString(dateLineEdit->text(), "dd/MM/yyyy");
+        QDate outputDate = QDate();
+
+        if(repetitionNameLineEdit->text() == "Daily")
+            outputDate = inputDate.addDays(1);
+        if(repetitionNameLineEdit->text() == "Weekly")
+            outputDate = inputDate.addDays(7);
+        if(repetitionNameLineEdit->text() == "Monthly")
+            outputDate = inputDate.addMonths(1);
+        if(repetitionNameLineEdit->text() == "Yearly")
+            outputDate = inputDate.addYears(1);
+        if(repetitionNameLineEdit->text() == "Custom"){
+
+            QStringList futureDates;
+            QStringList dateList = times.split(", ");
+            foreach (const QString &date, dateList) {
+                QDate inputDate = QDate::fromString(date, "dd/MM/yyyy");
+                if(inputDate >= currentDate)
+                    futureDates.append(date);
+            }
+            if(!futureDates.empty()){
+            QString futureDatesStr = futureDates.join(", ");
+            outputDate = QDate::fromString(futureDates[0], "dd/MM/yyyy");
+            }
+            else{
+                habitWidget->deleteLater();
+                habitList.remove(habitString);
+            }
+        }
+
+        dateLineEdit->setText(outputDate.toString("dd/MM/yyyy"));
+        editedHabit["times"] = outputDate.toString("dd/MM/yyyy");
+
+        habitList[habitString] = editedHabit;
+        jsonObj["list"] = habitList;
+        file.resize(0);
+        file.write(QJsonDocument(jsonObj).toJson());
+        file.close();
+      }
       }
         }
         else{
