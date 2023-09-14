@@ -117,7 +117,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(homeButton, &QPushButton::clicked, [=]() { resetWindow(inspirationButton,goalsButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget); });
     connect(inspirationButton, &QPushButton::clicked,[=](){on_inspirationButton_clicked(inspirationButton,goalsButton, centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
     connect(goalsButton, &QPushButton::clicked,[=](){on_GoalsButton_clicked(inspirationButton,goalsButton,centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
-    connect(habitsButton, &QPushButton::clicked,[=](){on_habitsButton_clicked(inspirationButton,goalsButton,centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
+    connect(habitsButton, &QPushButton::clicked,[=](){on_habitsButton_clicked(habitsButton, inspirationButton,goalsButton,centralWidget, mainWidget, notesButton, mainLayout, buttonLayout, helloLabel,gridLayout,aspectRatioWidget);});
 
 
     //add the layout to the grid layout
@@ -961,7 +961,7 @@ void MainWindow::loadGoals(QPushButton* addGoalButton){
     }
 }
 
-void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushButton* goalsButton, QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget) {
+void MainWindow::on_habitsButton_clicked(QPushButton* habitsButton, QPushButton* inspirationButton, QPushButton* goalsButton, QWidget* centralWidget, QWidget* mainWidget, QPushButton* notesButton, QVBoxLayout* mainLayout, QHBoxLayout* buttonLayout, QLabel* helloLabel, QGridLayout* gridLayout, AspectRatioWidget* aspectRatioWidget) {
 
     resetWindow(inspirationButton, goalsButton, notesButton, mainLayout, buttonLayout, helloLabel, gridLayout, aspectRatioWidget);
 
@@ -1054,7 +1054,7 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
         }
 
         int intValue = firstValue.toInt();
-        addHabit(upComingList, habitsWidget, habitsContainerLayout, intValue, habitObj["title"].toString(), habitObj["repetition"].toString(),habitObj["times"].toString());
+        addHabit(habitsButton,upComingList, habitsWidget, habitsContainerLayout, intValue, habitObj["title"].toString(), habitObj["repetition"].toString(),habitObj["times"].toString());
     }
         file.close();
     }
@@ -1067,7 +1067,8 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
         hideButton->setText("Show Upcoming");
     if(!upComingList.empty())
         for(auto upComingWidget : upComingList)
-            upComingWidget->setVisible(hidden);
+            if(upComingWidget)
+                upComingWidget->setVisible(hidden);
 
     QObject::connect(hideButton, &QPushButton::clicked, [=]() mutable {
 
@@ -1093,14 +1094,15 @@ void MainWindow::on_habitsButton_clicked(QPushButton* inspirationButton, QPushBu
         }
         if(!upComingList.empty())
             for(auto upComingWidget : upComingList)
-                upComingWidget->setVisible(hidden);
+                if(upComingWidget)
+                    upComingWidget->setVisible(hidden);
     });
 
-    connect(addHabitButton, &QPushButton::clicked, [=]() mutable{ addHabit(upComingList, habitsWidget, habitsContainerLayout, 0, "", "", ""); });
+    connect(addHabitButton, &QPushButton::clicked, [=]() mutable{ addHabit(habitsButton,upComingList, habitsWidget, habitsContainerLayout, 0, "", "", ""); });
 
 }
 
-void MainWindow::addHabit(QList<QWidget*> &upComingList, QWidget* habitsWidget,QVBoxLayout* habitsLayout, int habitIndex, QString habitTitle, QString repetition, QString times){
+void MainWindow::addHabit(QPushButton* habitsButton, QList<QWidget*> &upComingList, QWidget* habitsWidget,QVBoxLayout* habitsLayout, int habitIndex, QString habitTitle, QString repetition, QString times){
 
     QWidget* habitWidget = new QWidget(habitsWidget);
     habitWidget->setObjectName("habitWidget");
@@ -1284,7 +1286,7 @@ void MainWindow::addHabit(QList<QWidget*> &upComingList, QWidget* habitsWidget,Q
     }
     }
 
-    QObject::connect(deleteHabitButton, &QPushButton::clicked, [=]() mutable {
+    QObject::connect(deleteHabitButton, &QPushButton::clicked, [=, &upComingList]() mutable {
         QMessageBox msgBox;
                             msgBox.setWindowTitle("Confirmation");
                             msgBox.setText("Are you sure you want to delete this habit?");
@@ -1310,7 +1312,9 @@ void MainWindow::addHabit(QList<QWidget*> &upComingList, QWidget* habitsWidget,Q
                                                  "background-color: #1669C6;"
                                                  "}");
       if (msgBox.exec() == QMessageBox::Yes) {
+
           habitWidget->deleteLater();
+
           QString folderName = "savedHabits";
           QString fileName = QString("%1/habits.json").arg(folderName);
           QFile file(fileName);
@@ -1326,6 +1330,7 @@ void MainWindow::addHabit(QList<QWidget*> &upComingList, QWidget* habitsWidget,Q
               file.write(QJsonDocument(jsonObj).toJson());
               file.close();
       }
+          habitsButton->click();
       }
     });
 
@@ -1608,6 +1613,7 @@ void MainWindow::addHabit(QList<QWidget*> &upComingList, QWidget* habitsWidget,Q
         file.write(QJsonDocument(jsonObj).toJson());
         file.close();
       }
+        habitsButton->click();
       }
         }
         else{
