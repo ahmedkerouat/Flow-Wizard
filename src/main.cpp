@@ -1,12 +1,11 @@
 #include "mainwindow.h"
 
 #include <QApplication>
-#include <QSettings>
 #include <QInputDialog>
 #include <QFont>
 #include <QFontDatabase>
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
 
