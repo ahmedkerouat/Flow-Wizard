@@ -322,8 +322,6 @@ void MainWindow::on_notesButton_clicked(QPushButton* inspirationButton,QPushButt
 
     QObject::connect(saveShortcut, &QShortcut::activated, saveButton, &QPushButton::click);
 
-
-
     QPushButton *newButton = new QPushButton("New");
     connect(newButton, &QPushButton::clicked, [notepad]() {
         notepad->clear();
@@ -346,14 +344,76 @@ void MainWindow::on_notesButton_clicked(QPushButton* inspirationButton,QPushButt
         }
     });
 
+    QPushButton *recentFilesButton = new QPushButton("Recent Files");
+    connect(recentFilesButton, &QPushButton::clicked, [button3Style, notepad] (){
+
+        QDialog recentFilesDialog(notepad);
+        recentFilesDialog.setWindowTitle("Recent Files");
+
+        QComboBox comboBox(&recentFilesDialog);
+        QString comboBoxStylesheet = "QComboBox {"
+                                       "    padding-left: 85px;"
+                                       "    background-color: #071426;"
+                                       "    color: white;"
+                                       "    border: 1px solid white;"
+                                       "}"
+                                       "QComboBox:hover {"
+                                       "    background-color: #071426;"
+                                       "    border: 1px solid #009ace;"
+                                       "}"
+                                       "QComboBox::drop-down {"
+                                       "    subcontrol-origin: padding;"
+                                       "    subcontrol-position: top right;"
+                                       "    width: 20px;"
+                                       "    border-left-width: 1px;"
+                                       "    border-left-color: white;"
+                                       "    border-left-style: solid;"
+                                       "}" ;
+        comboBox.setStyleSheet(comboBoxStylesheet);
+        QString defaultFolder = QDir::currentPath() + QDir::separator() + "savedFiles";
+        QDir dir(defaultFolder);
+
+        QStringList recentFileNames;
+        QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files, QDir::Time);
+
+        for (int i = 0; i < fileInfoList.size() && i < 10; ++i) {
+            recentFileNames.push_back(fileInfoList[i].fileName());
+        }
+
+        comboBox.addItems(recentFileNames);
+        QPushButton loadButton("Load", &recentFilesDialog);
+        loadButton.setStyleSheet(button3Style);
+        connect(&loadButton, &QPushButton::clicked, [defaultFolder, &comboBox, notepad]() {
+            QString selectedFile = comboBox.currentText();
+            QString filePath = defaultFolder + QDir::separator() + selectedFile;
+            QFile file(filePath);
+            if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QTextStream stream(&file);
+                QString loadedText = stream.readAll();
+                file.close();
+
+                notepad->setPlainText(loadedText);
+                notepad->setProperty("filePath", filePath);  // Set the file path
+            }
+        });
+
+        QVBoxLayout layout(&recentFilesDialog);
+        layout.addWidget(&comboBox);
+        layout.addWidget(&loadButton);
+
+        recentFilesDialog.exec();
+    });
+
     loadButton->setStyleSheet(button3Style);
     saveButton->setStyleSheet(button3Style);
     newButton->setStyleSheet(button3Style);
+    recentFilesButton->setStyleSheet(button3Style);
 
     QHBoxLayout *button3Layout = new QHBoxLayout();
     button3Layout->addWidget(saveButton);
     button3Layout->addWidget(newButton);
     button3Layout->addWidget(loadButton);
+    button3Layout->addWidget(recentFilesButton);
 
     // Main layout for the notes widget
     QVBoxLayout *mainNotesLayout = new QVBoxLayout(notesWidget);
