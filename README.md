@@ -48,7 +48,7 @@ Recently, I wanted to boost my productivity, striving to accomplish more and ref
 
 - Habit Creation: Use the Habits Button to add new habits with customizable titles and repetition frequencies (daily, weekly, monthly, yearly, or custom dates).
 - Validation and Upcoming Habits: Habits due today appear as "In Progress" You can validate them, and they'll move to the next due date. Uncompleted habits with future due dates are categorized as "Upcoming"
-  Upcoming Habits Management: Easily hide or reveal all upcoming habits with the "Hide Upcoming" button, which transforms into "Show Upcoming" when needed.
+- Upcoming Habits Management: Easily hide or reveal all upcoming habits with the "Hide Upcoming" button, which transforms into "Show Upcoming" when needed.
 - Custom Habit Dates: Selecting "custom" for habit repetition opens a menu to choose specific due dates using multi-select combo box.
 - Automatic Habit Saving: Every action performed in the Habits section is automatically saved in a JSON file.
 - Automatic Habit Loading: When you open the app, your habit data is automatically loaded from the JSON file, ensuring that you can pick up right where you left off.
